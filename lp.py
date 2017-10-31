@@ -106,6 +106,7 @@ def generateAB(f_len, c_costs):
 def solve(f_costs, c_costs):
     c = generate_coeffs(f_costs, c_costs)
     A, b = generateAB(len(f_costs), c_costs)
+    print c
     print A
     print b
     G, h = generateGH(len(f_costs), len(c_costs))
