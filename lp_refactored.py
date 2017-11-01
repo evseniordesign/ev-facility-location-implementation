@@ -18,10 +18,10 @@ sum of xij = 1
 cvxopt format
 minimize c(T)x  where c is the coefficients
 Gx <= h
-Ax = b 
+Ax = b
 """
 from cvxopt import matrix, solvers
-from flgraph import fgraph 
+from flgraph import fgraph
 
 def generate_coeffs(f_costs, c_costs):
     output = list(f_costs)
@@ -33,7 +33,7 @@ def generateGH(f_len, c_len):
     outerlist = []
     h = []
 
-    # -yi + xij
+    # -yi + xij <= 0
     for i in xrange(0, f_len):
         inner = []
         # -yi
@@ -50,7 +50,7 @@ def generateGH(f_len, c_len):
                     inner.append(1.0)
                 else:
                     inner.append(0.0)
-        
+
         h.append(0.0)
         outerlist.append(inner)
 
@@ -66,7 +66,7 @@ def generateGH(f_len, c_len):
         h.append(0.0)
         outerlist.append(inner)
 
-    # yi
+    # yi <= 1
     for i in xrange(0, f_len):
         inner = []
         for j in xrange(0, c_len + f_len):
@@ -106,18 +106,12 @@ def generateAB(f_len, c_len):
 
 def solve(fg):
     c = generate_coeffs(fg._fcosts, fg.c_flat())
-    A, b = generateAB(fg.f_len, fg.c_len)
-    print A
-    print b
-    G, h = generateGH(fg.f_len, fg.c_len)
-    print G
-    print h
+    A, b = generateAB(fg.f_len, fg.c_len * fg.f_len)
+    G, h = generateGH(fg.f_len, fg.c_len * fg.f_len)
     return solvers.lp(c=c, G=G, h=h, A=A, b=b)
-    
+
 def main():
     test_fg = fgraph("test.txt")
-    # f_costs = [5.0, 2.0, 1.0] # 3 facilities
-    # c_costs = [3.0, 2.0, 3.0, 6.0, 1.0, 2.0] # 2 clients, c00, c10, c20, c01, etc.
     print solve(test_fg)['x']
 
 
