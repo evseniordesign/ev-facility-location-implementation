@@ -22,7 +22,7 @@ class fgraph:
 					self._ccosts = [client]
 				else:
 					self._ccosts.append(client)
-				if length(client) != f_len:
+				if len(client) != self.f_len:
 					raise ValueError()
 		except ValueError as err:
 			print "_fcosts and _ccosts must contain f_len values."
@@ -36,5 +36,11 @@ class fgraph:
 		 	print ". . ."
 		print "Constructor"
 
-	def c_flat():
+	def c_flat(self):
 		return np.transpose(self._ccosts).flatten().tolist()
+
+	def getNeighbors(self, facility):
+		try:
+			neighbor = np.transpose(self._ccosts)[facility]
+		except IndexError as err:
+			print "fgraph instance contains " + str(f_len) + " facilities."
