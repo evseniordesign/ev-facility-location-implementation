@@ -33,22 +33,22 @@ def generateGH(f_len, c_len):
     h = []
 
     # -yi + xij
-    for i in xrange(0, f_len):
+    for i in xrange(0, c_len):
+        facility_num = i % f_len
         inner = []
         # -yi
         for j in xrange(0, f_len):
-            if j == i:
+            if j == facility_num:
                 inner.append(-1.0)
             else:
                 inner.append(0.0)
 
         # xij
-        for j in xrange(0, num_customers):
-            for k in xrange(0, f_len):
-                if i == k:
-                    inner.append(1.0)
-                else:
-                    inner.append(0.0)
+        for j in xrange(0, c_len):
+            if j == i:
+                inner.append(1.0)
+            else:
+                inner.append(0.0)
         
         h.append(0.0)
         outerlist.append(inner)
@@ -103,22 +103,18 @@ def generateAB(f_len, c_costs):
         b.append(1.0)
     return matrix(outerlist).trans(), matrix(b)
 
+
 def solve(f_costs, c_costs):
     c = generate_coeffs(f_costs, c_costs)
     A, b = generateAB(len(f_costs), c_costs)
-    print c
-    print A
-    print b
     G, h = generateGH(len(f_costs), len(c_costs))
-    print G
-    print h
-    return solvers.lp(c=c, G=G, h=h, A=A, b=b)
-    
+    sol = solvers.lp(c=c, G=G, h=h, A=A, b=b)
+    return sol
+
 def main():
     f_costs = [5.0, 2.0, 1.0] # 3 facilities
     c_costs = [3.0, 2.0, 3.0, 6.0, 1.0, 2.0] # 2 clients, c00, c10, c20, c01, etc.
     print solve(f_costs, c_costs)['x']
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
