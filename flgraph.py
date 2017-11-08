@@ -35,8 +35,14 @@ class fgraph:
            print "[_ccosts][1]"
            print ". . ."
 
+    def getfcost(self, facility):
+        return _fcosts[facility]
+
+    def getccost(self, client, facility):
+        return _ccosts[client][facility]
+
     def c_flat(self):
-        return np.transpose(self._ccosts).flatten().tolist()
+        return np.array(self._ccosts).flatten().tolist()
 
     def getNeighbors(self, facility):
         try:
