@@ -10,3 +10,4 @@ print sol
 print mynb.n_mat
 
 print mynb.getNeighbors(0)
+print mynb.getFacilityNeighbors(4)

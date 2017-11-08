@@ -20,8 +20,9 @@ class neighborhood:
 	def getN2(self, client):
 		print "Get n2 neighborhood"
 
-	def getClientsAssigned(self, facility):
-		print "Get clients assigned to specific facility"
+	def getFacilityNeighbors(self, facility):
+		n_mat_tp = np.transpose(self.n_mat)
+		return np.nonzero(n_mat_tp[facility])[0]
 
 	def getCheapestFacility(self, client):
 		print "return cheapest facility here"
