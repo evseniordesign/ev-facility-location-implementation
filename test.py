@@ -11,3 +11,4 @@ print mynb.n_mat
 
 print mynb.getNeighbors(0)
 print mynb.getFacilityNeighbors(4)
+print mynb.getN2(0)

@@ -18,7 +18,13 @@ class neighborhood:
 		return np.nonzero(self.n_mat[client])[0]
 
 	def getN2(self, client):
-		print "Get n2 neighborhood"
+		neighbors = self.getNeighbors(client)
+		n2 = dict()
+		for i in neighbors:
+			fac_neighbors = self.getFacilityNeighbors(i)
+			fac_neighbors = np.delete(fac_neighbors, np.where(fac_neighbors == client))
+			n2[i] = fac_neighbors
+		return n2
 
 	def getFacilityNeighbors(self, facility):
 		n_mat_tp = np.transpose(self.n_mat)
