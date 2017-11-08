@@ -41,11 +41,12 @@ class fgraph:
     def getccost(self, client, facility):
         return _ccosts[client][facility]
 
-    def c_flat(self):
-        return np.array(self._ccosts).flatten().tolist()
-
     def getNeighbors(self, facility):
         try:
             neighbor = np.transpose(self._ccosts)[facility]
         except IndexError as err:
             print "fgraph instance contains " + str(f_len) + " facilities."
+
+    def read_graph(fg):
+        ccosts = reduce((lambda acc, curr: acc + curr), fg._ccosts)
+        return (fg._fcosts, ccosts)

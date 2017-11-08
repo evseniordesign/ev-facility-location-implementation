@@ -21,6 +21,7 @@ Gx <= h
 Ax = b 
 """
 from cvxopt import matrix, solvers
+import numpy as np
 
 def generate_coeffs(f_costs, c_costs):
     output = list(f_costs)

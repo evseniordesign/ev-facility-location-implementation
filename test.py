@@ -1,9 +1,10 @@
 from neighborhood import neighborhood as nb
 from flgraph import fgraph as fg
-import lp_refactored as lp
+import lp
+
 
 myg = fg("test.txt")
-sol = lp.solve(myg)['x']
+sol = lp.solve(*fg.read_graph(myg))['x']
 mynb = nb(myg, sol)
 
 print sol
