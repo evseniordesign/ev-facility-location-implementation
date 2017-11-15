@@ -17,7 +17,6 @@ def get_adjacent_facilities(facilities, decision_vars, baseline):
     """
     Get adjacent facilities of a given client.
     """
-    adjacent_facilities = set()
     return set()
 
 def get_adjacent_clients(facilities, decision_vars, baseline):
@@ -44,9 +43,10 @@ def facility_location_solve(facility_costs, client_costs):
         C <- C - {jk} - N^2(jk)
     """
     primal, dual = solve_lp(facility_costs, client_costs)
+    # TODO check if baseline makes any sense
     # if decision variable is less than baseline, treat it as 0
     num_facilities = len(facility_costs)
-    baseline = 1.0 * len(facility_costs) / len(client_costs) / 2
+    baseline = 1.0 / (2 * num_facilities)
 
     clients = set(xrange(0, len(client_costs)))
     facilities = dict()
@@ -61,19 +61,24 @@ def facility_location_solve(facility_costs, client_costs):
         # choose jk
         client = get_min(dual)
 
+        # decision vars for current client
+        current_decision_vars = client_decision_vars[
+            num_facilities * client :
+            num_facilities * (client + 1)]
+
         # choose ik
-        # start acc at 2 so that
+        # start acc at 2 so that all facility values are less than starting acc
         facility = reduce(get_min_cost,
                           get_adjacent_facilities(
                               facility_decision_vars,
-                              client_decision_vars[client],
+                              current_decision_vars,
                               baseline),
                           2)
 
         # assign jk, N^2(jk) to ik
         neighboring_clients = get_adjacent_clients(
             facility_decision_vars,
-            client_decision_vars[client],
+            current_decision_vars,
             baseline)
 
         if facilities[facility] is None:
