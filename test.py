@@ -1,15 +1,5 @@
-from neighborhood import neighborhood as nb
-from flgraph import fgraph as fg
-import lp
-
-
-myg = fg("test.txt")
-sol = lp.solve(*fg.read_graph(myg))['x']
-mynb = nb(myg, sol)
-
-print sol
-print mynb.n_mat
-
-print mynb.getNeighbors(0)
-print mynb.getFacilityNeighbors(4)
-print mynb.getN2(0)
+"""
+Temporary test file to run the algorithm code.
+"""
+from fgraph import Fgraph
+print Fgraph.from_file('test.txt').get_lp_sol()['x']
