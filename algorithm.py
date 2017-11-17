@@ -13,22 +13,38 @@ def solve_lp(facility_costs, client_costs):
     sol = lp.solve(facility_costs, flat_ccosts)
     return sol['x'], sol['z']
 
-def get_adjacent_facilities(facilities, decision_vars, baseline):
+def is_adjacent(single_client_vars, facilities, baseline):
+    """
+    Check if the given client is adjacent to any of the facilities.
+    """
+    for facility in facilities:
+        if single_client_vars[facility] > baseline:
+            return True
+
+    return False
+
+def get_adjacent_facilities(facility_vars, client_vars, client, baseline):
     """
     Get adjacent facilities of a given client.
     """
-    return set()
+    num_facilities = len(facility_vars)
+    return [facility for facility in xrange(0, num_facilities)
+            if client_vars[client][facility] > baseline]
 
-def get_adjacent_clients(facilities, decision_vars, baseline):
+def get_adjacent_clients(facility_vars, client_vars, client, baseline):
     """
     Get clients adjacent to facilities of a given client.
     """
-    return set()
+    num_clients = len(client_vars)
+    facilities = get_adjacent_facilities(facility_vars, client_vars, client, baseline)
+    return [client for client in xrange(0, num_clients)
+            if is_adjacent(client_vars[client], facilities, baseline)]
 
 def get_min(dual):
     """
     Get min vj* from the dual LP.
     """
+    # TODO how do this
     return 0
 
 def facility_location_solve(facility_costs, client_costs):
@@ -51,34 +67,32 @@ def facility_location_solve(facility_costs, client_costs):
     clients = set(xrange(0, len(client_costs)))
     facilities = dict()
 
-    decision_vars = list(primal)
-    # needed for the loop
-    client_decision_vars = decision_vars[num_facilities:]
-    facility_decision_vars = decision_vars[:num_facilities]
+    # Organize LP into facility vars and 2D array of client vars
+    facility_decision_vars = primal[:num_facilities]
+    client_decision_vars = [primal[i:i+num_facilities]
+                            for i in xrange(num_facilities, len(primal), num_facilities)]
+
     get_min_cost = lambda acc, curr: acc if facility_costs[acc] < facility_costs[curr] else curr
 
     while clients != set():
         # choose jk
         client = get_min(dual)
 
-        # decision vars for current client
-        current_decision_vars = client_decision_vars[
-            num_facilities * client :
-            num_facilities * (client + 1)]
-
         # choose ik
         # start acc at 2 so that all facility values are less than starting acc
         facility = reduce(get_min_cost,
                           get_adjacent_facilities(
                               facility_decision_vars,
-                              current_decision_vars,
+                              client_decision_vars,
+                              client,
                               baseline),
                           2)
 
         # assign jk, N^2(jk) to ik
         neighboring_clients = get_adjacent_clients(
             facility_decision_vars,
-            current_decision_vars,
+            client_decision_vars,
+            client,
             baseline)
 
         if facilities[facility] is None:
