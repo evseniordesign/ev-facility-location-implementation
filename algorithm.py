@@ -3,7 +3,9 @@ Runs the uncapacitated facility loaction problem solution.
 Calls the LP solver and uses the result to create and approximation of optimal.
 """
 
-import lp
+import lp, sys
+from sortedcontainers import sortedset
+from utils import Client, Facility
 
 def solve_lp(facility_costs, client_costs):
     """
@@ -11,7 +13,14 @@ def solve_lp(facility_costs, client_costs):
     """
     flat_ccosts = reduce((lambda acc, curr: acc + curr), client_costs)
     sol = lp.solve(facility_costs, flat_ccosts)
-    return sol['x'], sol['z']
+    return sol['x'], sol['y']
+
+def get_cheapest_neighbor(client, facilities, baseline):
+    lowest_fac = Facility(-1, sys.maxint, 0)
+    for f in facilities:
+        if client.is_member(f.index, baseline) and f.open_cost < lowest_fac.open_cost:
+            lowest_fac = f
+    return lowest_fac
 
 def is_adjacent(single_client_vars, facilities, baseline):
     """
@@ -23,30 +32,25 @@ def is_adjacent(single_client_vars, facilities, baseline):
 
     return False
 
-def get_adjacent_facilities(facility_vars, client_vars, client, baseline):
-    """
-    Get adjacent facilities of a given client.
-    """
-    num_facilities = len(facility_vars)
-    return [facility for facility in xrange(0, num_facilities)
-            if client_vars[client][facility] > baseline]
-
-def get_adjacent_clients(facility_vars, client_vars, client, baseline):
+def get_adjacent_clients(orig_client, clients, facilities, baseline):
     """
     Get clients adjacent to facilities of a given client.
     Includes the given client.
     """
-    num_clients = len(client_vars)
-    facilities = get_adjacent_facilities(facility_vars, client_vars, client, baseline)
-    return [client for client in xrange(0, num_clients)
-            if is_adjacent(client_vars[client], facilities, baseline)]
+    adj_clients = set()
+    adj_facilities = orig_client.get_facility_list(facilities, baseline)
+    for client in clients:
+        for f in adj_facilities:
+            if client.is_member(f.index, baseline):
+                adj_clients.add(client)
+    return adj_clients
 
-def get_min(dual):
+
+def get_min(clients):
     """
     Get min vj* from the dual LP.
     """
-    # TODO how do this
-    return 0
+    return clients.pop(0)
 
 def facility_location_solve(facility_costs, client_costs):
     """
@@ -60,48 +64,41 @@ def facility_location_solve(facility_costs, client_costs):
         C <- C - {jk} - N^2(jk)
     """
     primal, dual = solve_lp(facility_costs, client_costs)
+
     # TODO check if baseline makes any sense
     # if decision variable is less than baseline, treat it as 0
     num_facilities = len(facility_costs)
+    num_clients = len(client_costs)
     baseline = 1.0 / (2 * num_facilities)
 
-    clients = set(xrange(0, len(client_costs)))
-    facilities = dict()
+    #clients = set(xrange(0, len(client_costs)))
+    clients = sortedset.SortedSet([Client(client_costs[i], i, primal[(i+1)*num_facilities:(i+2)*num_facilities], dual[i])
+                for i in xrange(0, num_clients)])
+    facilities = [Facility(i, facility_costs[i], primal[i])
+                    for i in xrange(0, num_facilities)]
+    assignments = dict()
 
-    # Organize LP into facility vars and 2D array of client vars
-    facility_decision_vars = primal[:num_facilities]
-    client_decision_vars = [primal[i:i+num_facilities]
-                            for i in xrange(num_facilities, len(primal), num_facilities)]
-
-    get_min_cost = lambda acc, curr: acc if facility_costs[acc] < facility_costs[curr] else curr
-
-    while clients != set():
+    while clients:
         # choose jk
-        client = get_min(dual)
+        client = get_min(clients)
 
-        # choose ik
-        # start acc at 2 so that all facility values are less than starting acc
-        facility = reduce(get_min_cost,
-                          get_adjacent_facilities(
-                              facility_decision_vars,
-                              client_decision_vars,
-                              client,
-                              baseline),
-                          2)
+        # cheapest facility for this client
+        cheapest_f = get_cheapest_neighbor(client, facilities, baseline)
 
         # assign jk, N^2(jk) to ik
         neighboring_clients = get_adjacent_clients(
-            facility_decision_vars,
-            client_decision_vars,
             client,
+            clients,
+            facilities,
             baseline)
 
-        if facilities[facility] is None:
-            facilities[facility] = set()
+        if not cheapest_f in assignments:
+            assignments[cheapest_f] = set()
 
-        facilities[facility].union_update(neighboring_clients)
+        assignments[cheapest_f] |= neighboring_clients
+        assignments[cheapest_f].add(client)
 
         # remove jk, N^2(jk)
         clients.difference_update(neighboring_clients)
 
-    return facilities
+    return assignments
