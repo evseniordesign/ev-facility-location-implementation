@@ -35,6 +35,10 @@ def get_adjacent_clients(orig_client, facilities, baseline):
     return reduce(lambda acc, facility: acc | facility.memberships, adj_facilities, set())
 
 def facility_location_solve(facility_costs, client_costs):
+    primal, dual = solve_lp(facility_costs, client_costs)
+    return deterministic_rounding(facility_costs, client_costs, primal, dual)
+
+def deterministic_rounding(facility_costs, client_costs, primal, dual):
     """
     Solve LP, get optimal primal (x*, y*) and dual (v*, w*)
     C <- D
@@ -45,7 +49,6 @@ def facility_location_solve(facility_costs, client_costs):
         assign jk and all of N^2(jk) to ik
         C <- C - {jk} - N^2(jk)
     """
-    primal, dual = solve_lp(facility_costs, client_costs)
 
     # TODO check if baseline makes any sense
     # if decision variable is less than baseline, treat it as 0
@@ -53,11 +56,13 @@ def facility_location_solve(facility_costs, client_costs):
     baseline = 1.0 / (2 * num_facilities)
     assignments = dict()
 
+    # sorts clients by dual solution to reduce time complexity d
     clients = sortedset.SortedSet([
         Client(client_costs[i], i,
                primal[(i+1)*num_facilities:(i+2)*num_facilities],
                dual[i])
-        for i in xrange(0, len(client_costs))])
+        for i in xrange(0, len(client_costs))], 
+        key=lambda c : c.lowest_pair_cost)
 
     facilities = [Facility(i, facility_costs[i], primal[i])
                   for i in xrange(0, num_facilities)]
@@ -67,13 +72,14 @@ def facility_location_solve(facility_costs, client_costs):
                                     if client.is_member(facility.index, baseline)])
 
     while clients:
-        # choose jk
+        # choose minimum client
         client = clients.pop(0)
 
         # cheapest facility for this client
         cheapest_f = get_cheapest_neighbor(client, facilities, baseline)
 
-        # assign jk, N^2(jk) to ik
+        # assign min client, and all unassigned clients
+        # that neighbor neighboring facilities (N^2) of min client to cheap facility
         neighboring_clients = get_adjacent_clients(client, facilities, baseline)
 
         if cheapest_f not in assignments:
@@ -81,7 +87,7 @@ def facility_location_solve(facility_costs, client_costs):
 
         assignments[cheapest_f] |= neighboring_clients
 
-        # remove jk, N^2(jk)
+        # remove client, N^2(client)
         clients -= neighboring_clients
 
     return assignments
