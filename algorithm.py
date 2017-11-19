@@ -34,6 +34,7 @@ def get_adjacent_facilities(facility_vars, client_vars, client, baseline):
 def get_adjacent_clients(facility_vars, client_vars, client, baseline):
     """
     Get clients adjacent to facilities of a given client.
+    Includes the given client.
     """
     num_clients = len(client_vars)
     facilities = get_adjacent_facilities(facility_vars, client_vars, client, baseline)
@@ -99,10 +100,8 @@ def facility_location_solve(facility_costs, client_costs):
             facilities[facility] = set()
 
         facilities[facility].union_update(neighboring_clients)
-        facilities[facility].add(client)
 
         # remove jk, N^2(jk)
         clients.difference_update(neighboring_clients)
-        clients.remove(facility)
 
     return facilities

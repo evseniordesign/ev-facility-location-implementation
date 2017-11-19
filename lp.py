@@ -51,16 +51,7 @@ def generate_gh(f_len, c_len):
 
         # xij
         for j in xrange(0, c_len):
-            inner.append(1.0 if j == facility_num else 0.0)
-
-        result.append(0.0)
-        outerlist.append(inner)
-
-    # all >= 0
-    for i in xrange(0, c_len + f_len):
-        inner = []
-        for j in xrange(0, c_len + f_len):
-            inner.append(-1.0 if i == j else 0.0)
+            inner.append(1.0 if j == i else 0.0)
 
         result.append(0.0)
         outerlist.append(inner)
@@ -72,6 +63,15 @@ def generate_gh(f_len, c_len):
             inner.append(1.0 if i == j else 0.0)
 
         result.append(1.0)
+        outerlist.append(inner)
+
+    # all >= 0
+    for i in xrange(0, c_len + f_len):
+        inner = []
+        for j in xrange(0, c_len + f_len):
+            inner.append(-1.0 if i == j else 0.0)
+
+        result.append(0.0)
         outerlist.append(inner)
 
     return matrix(outerlist).trans(), matrix(result)
