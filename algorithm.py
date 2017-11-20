@@ -3,8 +3,8 @@ Runs the uncapacitated facility loaction problem solution.
 Calls the LP solver and uses the result to create and approximation of optimal.
 """
 
-import lp
 import random
+import lp
 from sortedcontainers import sortedset
 from utils import Client, Facility
 
@@ -27,11 +27,13 @@ def get_probably_good_neighbor(client, facilities, baseline):
     """
     Return random facility with probability decided by decision vars
     """
-    total_real_membership = sum([client.facility_memberships[facility.index] for facility in facilities if client.is_member(facility.index, baseline)]
+    total_real_membership = sum([client.facility_memberships[facility.index]
+                                 for facility in facilities
+                                 if client.is_member(facility.index, baseline)])
     number = random.uniform(0, total_real_membership)
     for facility in facilities:
         if client.is_member(facility.index, baseline):
-            number -= client.facility_memberships
+            number -= client.facility_memberships[facility.index]
             if number < 0:
                 return facility
     return None
@@ -52,10 +54,6 @@ def get_adjacent_clients(orig_client, clients, facilities, baseline):
                 break
 
     return adj_clients
-
-def facility_location_solve(facility_costs, client_costs):
-    primal, dual = solve_lp(facility_costs, client_costs)
-    return deterministic_rounding(facility_costs, client_costs, primal, dual)
 
 def rounding(facility_costs, client_costs, is_deterministic):
     """
@@ -89,8 +87,7 @@ def rounding(facility_costs, client_costs, is_deterministic):
         Client(client_costs[i], i,
                primal[(i+1)*num_facilities:(i+2)*num_facilities],
                dual[i])
-        for i in xrange(0, len(client_costs))], 
-        key=client_chooser)
+        for i in xrange(0, len(client_costs))], key=client_chooser)
 
     facilities = [Facility(i, facility_costs[i], primal[i])
                   for i in xrange(0, num_facilities)]
@@ -99,17 +96,17 @@ def rounding(facility_costs, client_costs, is_deterministic):
         # choose minimum client
         client = clients.pop(0)
 
-        # cheapest facility for this client
-        cheapest_f = facility_chooser(client, facilities, baseline)
+        # best facility for this client
+        facility = facility_chooser(client, facilities, baseline)
 
         # assign min client, and all unassigned clients
-        # that neighbor neighboring facilities (N^2) of min client to cheap facility
+        # that neighbor neighboring facilities (N^2) of min client to best facility
         neighboring_clients = get_adjacent_clients(client, clients, facilities, baseline)
 
-        if cheapest_f not in assignments:
-            assignments[cheapest_f] = set()
+        if facility not in assignments:
+            assignments[facility] = set()
 
-        assignments[cheapest_f] |= neighboring_clients
+        assignments[facility] |= neighboring_clients
 
         # remove client, N^2(client)
         clients -= neighboring_clients
@@ -117,7 +114,13 @@ def rounding(facility_costs, client_costs, is_deterministic):
     return assignments
 
 def deterministic_rounding(facility_costs, client_costs):
+    """
+    Call the algorithm's deterministic version.
+    """
     return rounding(facility_costs, client_costs, True)
 
 def randomized_rounding(facility_costs, client_costs):
+    """
+    Call the algorithm's randomized version.
+    """
     return rounding(facility_costs, client_costs, False)

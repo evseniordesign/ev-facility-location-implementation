@@ -47,16 +47,16 @@ class Client(object):
         Return a list of facilities that self is a member of.
         """
         return [f for f in facilities if self.is_member(f.index, baseline)]
-    
-    def get_expected_cost(self, baseline): 
+
+    def get_expected_cost(self, baseline):
         """
         Return expected cost of assigning self to a neighbor
         """
-        sum = 0
+        acc = 0
         for facility_number in xrange(len(self.c_costs)):
             if self.is_member(facility_number, baseline):
-                sum += c_costs[facility_number] * facility_memberships[facility_number]
-        return sum
+                acc += self.c_costs[facility_number] * self.facility_memberships[facility_number]
+        return acc
 
 class Facility(object):
     """

@@ -37,7 +37,8 @@ def main():
     Driver for the algorithm solver.
     """
     fcosts, ccosts = from_file('test.txt')
-    print algorithm.facility_location_solve(fcosts, ccosts)
+    print algorithm.randomized_rounding(fcosts, ccosts)
+    print algorithm.deterministic_rounding(fcosts, ccosts)
 
 if __name__ == '__main__':
     main()
