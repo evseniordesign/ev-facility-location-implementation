@@ -8,13 +8,31 @@ import lp
 from sortedcontainers import sortedset
 from utils import Client, Facility
 
-def solve_lp(facility_costs, client_costs):
+def solve_lp(facility_costs, client_costs, client_chooser):
     """
     Adjust args and pass arrays into LP solver.
     """
     flat_ccosts = reduce(lambda acc, curr: acc + curr, client_costs)
     sol = lp.solve(facility_costs, flat_ccosts)
-    return sol['x'], sol['y']
+    primal = sol['x']
+    dual = sol['y']
+
+    # TODO check if baseline makes any sense
+    # if decision variable is less than baseline, treat it as 0
+    num_facilities = len(facility_costs)
+    baseline = 1.0 / (2 * num_facilities)
+
+    # sorts clients by dual solution to reduce time complexity d
+    clients = sortedset.SortedSet([
+        Client(client_costs[i], i,
+               primal[(i+1)*num_facilities:(i+2)*num_facilities],
+               dual[i])
+        for i in xrange(0, len(client_costs))], key=client_chooser)
+
+    facilities = [Facility(i, facility_costs[i], primal[i])
+                  for i in xrange(0, num_facilities)]
+
+    return facilities, clients, baseline
 
 def get_cheapest_neighbor(client, facilities, baseline):
     """
@@ -67,14 +85,6 @@ def rounding(facility_costs, client_costs, is_deterministic):
         C <- C - {jk} - N^2(jk)
     """
 
-    primal, dual = solve_lp(facility_costs, client_costs)
-
-    # TODO check if baseline makes any sense
-    # if decision variable is less than baseline, treat it as 0
-    num_facilities = len(facility_costs)
-    baseline = 1.0 / (2 * num_facilities)
-    assignments = dict()
-
     if is_deterministic:
         facility_chooser = get_cheapest_neighbor
         client_chooser = lambda client: client.lowest_pair_cost
@@ -82,15 +92,8 @@ def rounding(facility_costs, client_costs, is_deterministic):
         facility_chooser = get_probably_good_neighbor
         client_chooser = lambda client: client.lowest_pair_cost + client.get_expected_cost(baseline)
 
-    # sorts clients by dual solution to reduce time complexity d
-    clients = sortedset.SortedSet([
-        Client(client_costs[i], i,
-               primal[(i+1)*num_facilities:(i+2)*num_facilities],
-               dual[i])
-        for i in xrange(0, len(client_costs))], key=client_chooser)
-
-    facilities = [Facility(i, facility_costs[i], primal[i])
-                  for i in xrange(0, num_facilities)]
+    assignments = dict()
+    facilities, clients, baseline = solve_lp(facility_costs, client_costs, client_chooser)
 
     while clients:
         # choose minimum client
