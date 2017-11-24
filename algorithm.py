@@ -17,8 +17,6 @@ def solve_lp(facility_costs, client_costs, client_chooser):
     primal = sol['x']
     dual = sol['y']
 
-    # TODO check if baseline makes any sense
-    # if decision variable is less than baseline, treat it as 0
     num_facilities = len(facility_costs)
 
     # sorts clients by dual solution to reduce time complexity d
@@ -33,29 +31,29 @@ def solve_lp(facility_costs, client_costs, client_chooser):
 
     return facilities, clients
 
-def get_cheapest_neighbor(client, facilities, baseline):
+def get_cheapest_neighbor(client, facilities):
     """
     Return neighbor's client that has the lowest cost.
     """
-    adj_facilities = client.get_facility_list(facilities, baseline)
+    adj_facilities = client.get_facility_list(facilities)
     return min(adj_facilities, key=lambda fac: fac.open_cost)
 
-def get_probably_good_neighbor(client, facilities, baseline):
+def get_probably_good_neighbor(client, facilities):
     """
     Return random facility with probability decided by decision vars
     """
     total_real_membership = sum([client.facility_memberships[facility.index]
                                  for facility in facilities
-                                 if client.is_member(facility.index, baseline)])
+                                 if client.is_member(facility.index)])
     number = random.uniform(0, total_real_membership)
     for facility in facilities:
-        if client.is_member(facility.index, baseline):
+        if client.is_member(facility.index):
             number -= client.facility_memberships[facility.index]
             if number < 0:
                 return facility
     return None
 
-def get_adjacent_clients(orig_client, clients, facilities, baseline):
+def get_adjacent_clients(orig_client, clients, facilities):
     """
     Get clients adjacent to facilities of a given client.
     Includes the given client.
@@ -63,10 +61,10 @@ def get_adjacent_clients(orig_client, clients, facilities, baseline):
     adj_clients = set()
     adj_clients.add(orig_client)
 
-    adj_facilities = orig_client.get_facility_list(facilities, baseline)
+    adj_facilities = orig_client.get_facility_list(facilities)
     for client in clients:
         for facility in adj_facilities:
-            if client.is_member(facility.index, baseline):
+            if client.is_member(facility.index):
                 adj_clients.add(client)
                 break
 
@@ -89,10 +87,9 @@ def rounding(facility_costs, client_costs, is_deterministic):
         client_chooser = lambda client: client.lowest_pair_cost
     else:
         facility_chooser = get_probably_good_neighbor
-        client_chooser = lambda client: client.lowest_pair_cost + client.get_expected_cost(baseline)
+        client_chooser = lambda client: client.lowest_pair_cost + client.get_expected_cost()
 
     assignments = dict()
-    baseline = 1.0 / (2 * len(facility_costs))
     facilities, clients = solve_lp(facility_costs, client_costs, client_chooser)
 
     while clients:
@@ -100,11 +97,11 @@ def rounding(facility_costs, client_costs, is_deterministic):
         client = clients.pop(0)
 
         # best facility for this client
-        facility = facility_chooser(client, facilities, baseline)
+        facility = facility_chooser(client, facilities)
 
         # assign min client, and all unassigned clients
         # that neighbor neighboring facilities (N^2) of min client to best facility
-        neighboring_clients = get_adjacent_clients(client, clients, facilities, baseline)
+        neighboring_clients = get_adjacent_clients(client, clients, facilities)
 
         if facility not in assignments:
             assignments[facility] = set()
