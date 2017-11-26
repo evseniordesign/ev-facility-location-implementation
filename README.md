@@ -1,5 +1,12 @@
 # ev-facility-location-implementation
-Implementation of the Facility Location algorithm mapped to the EV senior design
+Implementation of the Facility Location algorithm mapped to our EV senior design project.
+
+## Overview
+This project includes a Python implementation of our solution to the Electric Vehicle Charger Placement problem. The problem is to find an optimal placement of electric vehicle chargers in an area such that we minimize uneven power load distribution and costs such as driving distance and building costs. 
+
+Our solution involves mapping this problem to the uncapacitated facility location problem as described in the [Design of Approximate Algorithms](http://www.designofapproxalgs.com/) text. This problem takes in a set of clients, a set of possible facility locations, associated building costs, and client costs for each facility and asks for an output that minimizes costs and creates an optimal opening of facilities and pairing of clients. Our mapping uses the facilities as possible charger locations and clients as electric vehicle users.
+
+Currently, we have implemented two algorithms (algorithm.py) for the facility location problem, a deterministic rounding algorithm (4-approximation) and a randomized rounding algorithm (3-approximation). These algorithms both involve a given linear programming formulation of the problem that we have solved and described in lp.py. We used the CVXOPT library to solve the LP. To test this implemented, we have provided a driver.py that takes in a file input and returns a dictionary representing the optimal charger placement.
 
 ## How to use pip and virtualenv
 Python has two main flavors in use - python2 and python3. Mac people will probably have python2 preinstalled (though I'm not entirely sure what kind of python it is), and Windows people got nothing. You can install from [the Python site](https://www.python.org/). Linux people can just run `sudo apt install python3` to get python3, and python2 comes with most respectable distributions. Mac people can use [Homebrew](https://brew.sh/) and Windows people can use [Chocolatey](https://chocolatey.org/), but unless you already have these things, it's probably not worth it just for this. You'll want pip2 and python2 for what we're doing. We might switch to python3 and pip3 later, not sure how that'll go.
