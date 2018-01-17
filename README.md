@@ -49,3 +49,15 @@ NOTE: While setting up this repo, I learned that you're not actually supposed to
 
 Specifically, this project uses python2, so make sure you use it to set up as well.
 
+##Two Approaches to EV Charger Problem with Multiple Facilities
+
+The problem is to optimally place EV chargers in possible given locations. Our current issue is to modify the uncapacitated facility location problem so that it can handle placing multiple chargers in one physical locations.
+
+Approach 1: Estimate the number of chargers in a location
+This approach means that we run our algorithm to generate assignments and then, based on the number of clients assigned to a facility, place the right number of chargers there.
+
+Approach 2: Iterate on the capacitated facility location algorithm
+This approach means that we modify our algorithm to solve the capacitated facility location problem, which places a limit on the number of clients that can be assigned a facility. This means that our "facilities" correspond to individual charger ports. After we run this algorithm and generate our assignments, we take unassigned clients and modify the costs based on the number of clients already assigned. We then iterate until the result stabilizes.
+
+We want to use Approach 1 because it seems simpler to implement and less prone to error.
+
