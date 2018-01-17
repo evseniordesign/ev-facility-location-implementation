@@ -1,5 +1,5 @@
 """
-Runs the uncapacitated facility loaction problem solution.
+Runs the uncapacitated facility location solution.
 Calls the LP solver and uses the result to create and approximation of optimal.
 """
 
@@ -19,7 +19,7 @@ def solve_lp(facility_costs, client_costs, client_chooser):
 
     num_facilities = len(facility_costs)
 
-    # sorts clients by dual solution to reduce time complexity d
+    # sorts clients by dual solution to reduce time complexity
     clients = sortedset.SortedSet([
         Client(client_costs[i], i,
                primal[(i+1)*num_facilities:(i+2)*num_facilities],
