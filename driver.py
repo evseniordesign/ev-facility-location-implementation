@@ -2,7 +2,7 @@
 Temporary test file to run the algorithm code.
 """
 
-import algorithm
+from facility_location.algorithm import choose_facilities
 
 def from_file(filename):
     """
@@ -37,8 +37,8 @@ def main():
     Driver for the algorithm solver.
     """
     fcosts, ccosts = from_file('test.txt')
-    print algorithm.randomized_rounding(fcosts, ccosts)
-    print algorithm.deterministic_rounding(fcosts, ccosts)
+    print choose_facilities(fcosts, ccosts)
+    print choose_facilities(fcosts, ccosts, is_deterministic=True)
 
 if __name__ == '__main__':
     main()

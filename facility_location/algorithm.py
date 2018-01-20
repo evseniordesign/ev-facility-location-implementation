@@ -70,7 +70,7 @@ def get_adjacent_clients(orig_client, clients, facilities):
 
     return adj_clients
 
-def rounding(facility_costs, client_costs, is_deterministic):
+def choose_facilities(facility_costs, client_costs, is_deterministic=False):
     """
     Solve LP, get optimal primal (x*, y*) and dual (v*, w*)
     C <- D
@@ -112,15 +112,3 @@ def rounding(facility_costs, client_costs, is_deterministic):
         clients -= neighboring_clients
 
     return assignments
-
-def deterministic_rounding(facility_costs, client_costs):
-    """
-    Call the algorithm's deterministic version.
-    """
-    return rounding(facility_costs, client_costs, True)
-
-def randomized_rounding(facility_costs, client_costs):
-    """
-    Call the algorithm's randomized version.
-    """
-    return rounding(facility_costs, client_costs, False)

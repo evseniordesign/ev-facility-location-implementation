@@ -30,17 +30,13 @@ class Client(object):
 
         sorted_memberships = sorted(primal, reverse=True)
         acc = 0
-        index = 0
-        for decision_var in sorted_memberships:
+        for index, decision_var in enumerate(sorted_memberships):
             if acc < (1 - 1e-7): # acceptable error
                 acc += decision_var
-                index += 1
             else:
+                # baseline in between used and unused values
+                self.baseline = (sorted_memberships[index - 1] + sorted_memberships[index]) / 2
                 break
-
-        if len(sorted_memberships) != index:
-            # baseline in between used and unused values
-            self.baseline = (sorted_memberships[index - 1] + sorted_memberships[index]) / 2
 
     def __hash__(self):
         return hash(self.index)
