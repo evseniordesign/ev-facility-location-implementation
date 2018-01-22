@@ -72,14 +72,9 @@ def get_adjacent_clients(orig_client, clients, facilities):
 
 def choose_facilities(facility_costs, client_costs, is_deterministic=False):
     """
-    Solve LP, get optimal primal (x*, y*) and dual (v*, w*)
-    C <- D
-    K <- 0
-    while C != 0 do
-        choose jk in C that minimizes vj* for all j in C
-        choose ik in N(jk) that is the cheapest facility
-        assign jk and all of N^2(jk) to ik
-        C <- C - {jk} - N^2(jk)
+    Run the LP solver and rounding algorithm to output a solution.
+    The solution format is a dictionary with the keys being facilities 
+    and values being a set of clients.
     """
 
     if is_deterministic:
