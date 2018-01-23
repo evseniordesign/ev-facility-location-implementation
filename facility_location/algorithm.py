@@ -8,28 +8,34 @@ import lp
 from sortedcontainers import sortedset
 from utils import Client, Facility
 
-def solve_lp(facility_costs, client_costs, client_chooser):
+def solve_lp(facility_costs, client_costs):
     """
-    Adjust args and pass arrays into LP solver.
+    Adjust args and pass arrays into LP solver. 
+    Return primal and dual solutions.
     """
     flat_ccosts = reduce(lambda acc, curr: acc + curr, client_costs)
     sol = lp.solve(facility_costs, flat_ccosts)
     primal = sol['x']
     dual = sol['y']
 
-    num_facilities = len(facility_costs)
+    return primal, dual
 
-    # sorts clients by dual solution to reduce time complexity
-    clients = sortedset.SortedSet([
-        Client(client_costs[i], i,
+def init_clients(client_costs, primal, dual, num_facilities):
+    """
+    Return list of clients with LP information.
+    """
+    return [Client(client_costs[i], i,
                primal[(i+1)*num_facilities:(i+2)*num_facilities],
                dual[i])
-        for i in xrange(0, len(client_costs))], key=client_chooser)
+        for i in xrange(0, len(client_costs))]
 
-    facilities = [Facility(i, facility_costs[i], primal[i])
+def init_facilities(facility_costs, primal):
+    """
+    Return list of facilities with LP information.
+    """
+    num_facilities = len(facility_costs)
+    return [Facility(i, facility_costs[i], primal[i])
                   for i in xrange(0, num_facilities)]
-
-    return facilities, clients
 
 def get_cheapest_neighbor(client, facilities):
     """
@@ -70,22 +76,15 @@ def get_adjacent_clients(orig_client, clients, facilities):
 
     return adj_clients
 
-def choose_facilities(facility_costs, client_costs, is_deterministic=False):
+def rounding(facilities, clients, client_chooser, facility_chooser):
     """
-    Run the LP solver and rounding algorithm to output a solution.
-    The solution format is a dictionary with the keys being facilities 
-    and values being a set of clients.
+    Run deterministic or randomized rounding algorithm to determine
+    facility location costs.
     """
-
-    if is_deterministic:
-        facility_chooser = get_cheapest_neighbor
-        client_chooser = lambda client: client.lowest_pair_cost
-    else:
-        facility_chooser = get_probably_good_neighbor
-        client_chooser = lambda client: client.lowest_pair_cost + client.get_expected_cost()
-
     assignments = dict()
-    facilities, clients = solve_lp(facility_costs, client_costs, client_chooser)
+
+    # sorts clients by dual solution to reduce time complexity
+    clients = sortedset.SortedSet(clients, key=client_chooser)
 
     while clients:
         # choose minimum client
@@ -107,3 +106,24 @@ def choose_facilities(facility_costs, client_costs, is_deterministic=False):
         clients -= neighboring_clients
 
     return assignments
+
+def choose_facilities(facility_costs, client_costs, algorithm="rand_round"):
+    """
+    Run the LP solver and given algorithm to output a solution.
+    The solution format is a dictionary with the keys being facilities 
+    and values being a set of clients.
+    """
+    primal, dual = solve_lp(facility_costs, client_costs)
+    facilities = init_facilities(facility_costs, primal)
+    clients = init_clients(client_costs, primal, dual, len(facilities))
+
+    if algorithm == "rand_round":
+        client_chooser = lambda client: client.lowest_pair_cost + client.get_expected_cost()
+        facility_chooser = get_cheapest_neighbor
+        return rounding(facilities, clients, client_chooser, facility_chooser)
+    elif algorithm == "det_round":
+        client_chooser = lambda client: client.lowest_pair_cost
+        facility_chooser = get_probably_good_neighbor
+        return rounding(facilities, clients, client_chooser, facility_chooser)
+    else:
+        return None

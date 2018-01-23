@@ -105,6 +105,9 @@ def generate_ab(f_len, c_costs):
 def solve(f_costs, c_costs):
     """
     Combines all constraints and sends the LP to the solver.
+    Solution is a dictionary with solution values associated 
+    with variable key names. Ex. sol['x'] contains the solution for
+    the values of the x vector.
     """
     coeffs = generate_coeffs(f_costs, c_costs)
     eq_mat, eq_vec = generate_ab(len(f_costs), c_costs)

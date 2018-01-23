@@ -38,7 +38,7 @@ def main():
     """
     fcosts, ccosts = from_file('test.txt')
     print choose_facilities(fcosts, ccosts)
-    print choose_facilities(fcosts, ccosts, is_deterministic=True)
+    print choose_facilities(fcosts, ccosts, "det_round")
 
 if __name__ == '__main__':
     main()
