@@ -2,7 +2,7 @@
 Temporary test file to run the algorithm code.
 """
 
-from facility_location.algorithm import choose_facilities
+from facility_location.algorithm import choose_facilities, Algorithms
 
 def from_file(filename):
     """
@@ -38,7 +38,7 @@ def main():
     """
     fcosts, ccosts = from_file('test.txt')
     print choose_facilities(fcosts, ccosts)
-    print choose_facilities(fcosts, ccosts, "det_round")
+    print choose_facilities(fcosts, ccosts, algorithm=Algorithms.DET)
 
 if __name__ == '__main__':
     main()

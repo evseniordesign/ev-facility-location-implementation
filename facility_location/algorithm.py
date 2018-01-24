@@ -7,6 +7,12 @@ import random
 import lp
 from sortedcontainers import sortedset
 from utils import Client, Facility
+from enum import Enum
+
+class Algorithms(Enum):
+    RAND = 1
+    DET = 2
+
 
 def solve_lp(facility_costs, client_costs):
     """
@@ -76,7 +82,7 @@ def get_adjacent_clients(orig_client, clients, facilities):
 
     return adj_clients
 
-def rounding(facilities, clients, client_chooser, facility_chooser):
+def rounding_algorithm(facilities, clients, client_chooser, facility_chooser):
     """
     Run deterministic or randomized rounding algorithm to determine
     facility location costs.
@@ -107,23 +113,23 @@ def rounding(facilities, clients, client_chooser, facility_chooser):
 
     return assignments
 
-def choose_facilities(facility_costs, client_costs, algorithm="rand_round"):
+def choose_facilities(facility_costs, client_costs, algorithm=Algorithms.RAND):
     """
     Run the LP solver and given algorithm to output a solution.
-    The solution format is a dictionary with the keys being facilities 
+    The solution format is a dictionary with the keys being facilities
     and values being a set of clients.
     """
     primal, dual = solve_lp(facility_costs, client_costs)
     facilities = init_facilities(facility_costs, primal)
     clients = init_clients(client_costs, primal, dual, len(facilities))
 
-    if algorithm == "rand_round":
+    if algorithm == Algorithms.RAND:
         client_chooser = lambda client: client.lowest_pair_cost + client.get_expected_cost()
         facility_chooser = get_cheapest_neighbor
-        return rounding(facilities, clients, client_chooser, facility_chooser)
-    elif algorithm == "det_round":
+        return rounding_algorithm(facilities, clients, client_chooser, facility_chooser)
+    elif algorithm == Algorithms.DET:
         client_chooser = lambda client: client.lowest_pair_cost
         facility_chooser = get_probably_good_neighbor
-        return rounding(facilities, clients, client_chooser, facility_chooser)
+        return rounding_algorithm(facilities, clients, client_chooser, facility_chooser)
     else:
         return None
