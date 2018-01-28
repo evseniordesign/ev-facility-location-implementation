@@ -59,7 +59,7 @@ def main():
     # The test I wrote seems to produce different results when
     # run deterministically vs when run probablistically. Maybe look
     # into that? Not really sure why this happened
-    fcosts, ccosts = test_mapping('test.json')
+    fcosts, ccosts = test_mapping('Data/test.json')
     print choose_facilities(fcosts, ccosts)
     print choose_facilities(fcosts, ccosts, algorithm=Algorithms.DET)
 
