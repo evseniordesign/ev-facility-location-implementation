@@ -36,7 +36,7 @@ def main():
     """
     Driver for the algorithm solver.
     """
-    fcosts, ccosts = from_file('test.txt')
+    fcosts, ccosts = from_file('Data/test.txt')
     print choose_facilities(fcosts, ccosts)
     print choose_facilities(fcosts, ccosts, algorithm=Algorithms.DET)
 
