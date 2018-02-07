@@ -18,7 +18,7 @@ def distance(p1, p2):
     return math.sqrt((p1['lat'] - p2['lat']) ** 2 +
                      (p1['long'] - p2['long']) ** 2)
 
-def make_mapping(filename, facility_func, client_func):
+def make_mapping(filename, input_proc_func, facility_func, client_func):
     """
     Makes a mapping to the facility location problem using
     filename (json file with specified schema)
@@ -26,7 +26,7 @@ def make_mapping(filename, facility_func, client_func):
     client_func (function from (client, facility) to client cost)
     """
     with open(filename) as datafile:
-        data = json.load(datafile)
+        data = input_proc_func(datafile)
         
         fcosts = [float(facility_func(facility))
                   for facility in data['facilities']]
@@ -50,7 +50,7 @@ def test_mapping(filename):
     # client
     client_func = lambda client, facility: distance(client, facility) * 1000
 
-    return make_mapping(filename, facility_func, client_func)
+    return make_mapping(filename, json.load, facility_func, client_func)
 
 def main():
     """
