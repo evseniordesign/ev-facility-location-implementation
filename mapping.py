@@ -13,6 +13,7 @@ not a priority.
 import json
 import math
 from facility_location.algorithm import choose_facilities, Algorithms
+from cost_gen import get_fcost, get_ccost
 
 def distance(p1, p2):
     return math.sqrt((p1['lat'] - p2['lat']) ** 2 +
@@ -45,11 +46,11 @@ def test_mapping(filename):
         data = json.load(datafile)
 
         # I guess opening the facility will take $1,000,000
-        facility_func = lambda facility: 1000000
+        #facility_func = lambda facility: 1000000
 
-        client_func = lambda client, facility: distance(client, facility) * 1000
+        #client_func = lambda client, facility: distance(client, facility) * 1000
 
-        return make_mapping(data, facility_func, client_func)
+        return make_mapping(data, get_fcost, get_ccost)
 
 def main():
     """
@@ -58,7 +59,9 @@ def main():
     # The test I wrote seems to produce different results when
     # run deterministically vs when run probablistically. Maybe look
     # into that? Not really sure why this happened
+
     fcosts, ccosts = test_mapping('Data/test.json')
+    
     print choose_facilities(fcosts, ccosts)
     print choose_facilities(fcosts, ccosts, algorithm=Algorithms.DET)
 
