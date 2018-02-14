@@ -26,8 +26,14 @@ def run_algorithm():
     data = json.loads(submitted_file.read())
     fcosts, ccosts = make_mapping(data, facility_func, client_func)
     output = choose_facilities(fcosts, ccosts)
+
+    print output
     facilities = [data['facilities'][facility.index]
             for facility in output.keys()]
 
-    return render_template('map.html', points=facilities)
+    weights = [len(output[key]) for key in output.keys()]
+    print facilities
+    print weights
+
+    return render_template('heatmap.html', points=facilities, weights=weights)
 
