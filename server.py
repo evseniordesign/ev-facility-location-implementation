@@ -31,11 +31,15 @@ def run_algorithm():
     fcosts, ccosts = make_mapping(data, get_fcost, get_ccost)
     output = choose_facilities(fcosts, ccosts)
 
+    print output
     facilities = [data['facilities'][facility.index]
             for facility in output.keys()]
 
+    weights = [len(output[key]) for key in output.keys()]
+    print facilities
+    print weights
 
-    return render_template('map.html', points=facilities)
+    return render_template('heatmap.html', points=facilities, weights=weights)
 
 if __name__ == '__main__':
     app.run()
