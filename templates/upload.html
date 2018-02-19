@@ -3,6 +3,18 @@
     <head>
     </head>
     <body>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {% if category == "error" %}
+                        <h3>Error: {{ message }}</h3>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    	{% if error %}
+    	<h2>Error: {{ error }}</h2>
+    	{% endif %}
         <form method="post" action="/run" enctype = "multipart/form-data">
               <input type="file" name="file" />
               <input type="submit" value="submit" />
