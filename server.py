@@ -24,16 +24,11 @@ def upload():
 def run_algorithm():
     submitted_file = request.files['file']
     data = json.loads(submitted_file.read())
-    fcosts, ccosts = make_mapping(data, facility_func, client_func)
-    output = choose_facilities(fcosts, ccosts)
+    #fcosts, ccosts = make_mapping(data, facility_func, client_func)
+    #output = choose_facilities(fcosts, ccosts)
+    #facilities = [data['facilities'][facility.index]
+    #        for facility in output.keys()]
 
-    print output
-    facilities = [data['facilities'][facility.index]
-            for facility in output.keys()]
-
-    weights = [len(output[key]) for key in output.keys()]
-    print facilities
-    print weights
-
-    return render_template('heatmap.html', points=facilities, weights=weights)
+    print data
+    #return render_template('map.html', points=data.facilities)
 
