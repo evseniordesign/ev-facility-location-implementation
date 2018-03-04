@@ -23,6 +23,16 @@ def distance(p1, p2):
     return math.sqrt((p1['lat'] - p2['lat']) ** 2 +
                      (p1['long'] - p2['long']) ** 2)
 
+def process_input(file):
+    if file.filename.rsplit('.', 1)[1].lower() == 'json':
+        data_out = json.loads(file.read())
+        data_out["facilities"].append({"dummy": True})
+        return data_out
+    elif file.filename.rsplit('.', 1)[1].lower() == 'csv':
+        # TODO: CSV processing
+        return None
+
+
 def make_mapping(data, facility_func, client_func):
     """
     Makes a mapping to the facility location problem using
