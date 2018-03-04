@@ -1,4 +1,3 @@
-import pandas as pd
 from common.helpers import distance
 
 C_SCHEMA = ['lat', 'long']

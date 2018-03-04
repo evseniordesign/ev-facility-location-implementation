@@ -12,14 +12,10 @@ from common.helpers import distance
 app = Flask(__name__)
 app.secret_key = "super secret key"
 
-#facility_func = lambda facility: 1000 if "dummy" not in facility else 0
-client_func = lambda client, facility: \
-        distance(client['lat'], client['long'], \
-            facility['lat'], facility['long'])
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ['json', 'csv']
+def allowed_files(files):
+    return (files['json'] is not None and files['json'].filename.endswith('.json')) or \
+    (files['csvfacility'] is not None and files['csvfacility'].filename.endswith('.csv')
+    and files['csvclient'] is not None and files['csvclient'].filename.endswith('.csv'))
 
 @app.route('/')
 def upload(error = None):
@@ -27,14 +23,14 @@ def upload(error = None):
 
 @app.route('/run', methods=['POST'])
 def run_algorithm():
-    submitted_file = request.files['file']
-    if not allowed_file(submitted_file.filename):
+    if not allowed_files(request.files):
         flash("Filetype not allowed", "error")
         return redirect(url_for('upload'))
-    data = process_input(submitted_file)
+
+    data = process_input(request.files)
     fcosts, ccosts = make_mapping(data, get_fcost, get_ccost)
     output = choose_facilities(fcosts, ccosts)
-    print(output.keys()[0])
+
     facilities = [data['facilities'][facility.index]
             for facility in output.keys()]
 

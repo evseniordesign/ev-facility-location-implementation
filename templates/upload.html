@@ -16,7 +16,9 @@
     	<h2>Error: {{ error }}</h2>
     	{% endif %}
         <form method="post" action="/run" enctype = "multipart/form-data">
-              <input type="file" name="file" />
+              <input type="file" name="json" />
+              <input type="file" name="csvfacility" />
+              <input type="file" name="csvclient" />
               <input type="submit" value="submit" />
         </form>
     </body>
