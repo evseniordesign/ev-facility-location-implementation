@@ -23,23 +23,15 @@ def upload(error = None):
 
 @app.route('/run', methods=['POST'])
 def run_algorithm():
-    if not allowed_files(request.files):
-        flash("Filetype not allowed", "error")
-        return redirect(url_for('upload'))
+    submitted_file = request.files['file']
+    data = json.loads(submitted_file.read())
+    #fcosts, ccosts = make_mapping(data, facility_func, client_func)
+    #output = choose_facilities(fcosts, ccosts)
+    #facilities = [data['facilities'][facility.index]
+    #        for facility in output.keys()]
 
-    data = process_input(request.files)
-    fcosts, ccosts = make_mapping(data, get_fcost, get_ccost)
-    output = choose_facilities(fcosts, ccosts)
-
-    print output
-    facilities = [data['facilities'][facility.index]
-            for facility in output.keys()]
-
-    weights = [len(output[key]) for key in output.keys()]
-    print facilities
-    print weights
-
-    return render_template('heatmap.html', points=facilities, weights=weights)
+    print data
+    #return render_template('map.html', points=data.facilities)
 
 if __name__ == '__main__':
     app.run()
