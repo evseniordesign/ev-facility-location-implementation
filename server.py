@@ -37,5 +37,5 @@ def run_algorithm():
 
     return render_template('map.html', points=facilities)
 
-if __name__ != '__main__':
+if __name__ == '__main__':
     app.run()
