@@ -15,18 +15,33 @@
             {% endfor %}
             ];
 
-            var bounds = new google.maps.LatLngBounds();
+			var weights = {{weights | tojson}};
+			//var points = [ {lat: 10, lng: 10}, {lat: 0, lng:10} ];
+			//var weights = [3, 10];
+
             var map = new google.maps.Map(document.getElementById("map_canvas"), {
-                zoom: 15,
+                zoom: 5,
             });
 
-            var markers = points.map(point => {
+            var heatmapdata = [];
+
+            var bounds = new google.maps.LatLngBounds();
+            for (var i = 0; i < points.length; i++) {
+                var point = points[i];
+
                 bounds.extend(new google.maps.LatLng(point.lat, point.lng));
 
-                return new google.maps.Marker({
-                    position: point,
-                    map: map,
+                //heatmapdata.push(new google.maps.LatLng(point.lat, point.lng));
+                heatmapdata.push({
+                    location: new google.maps.LatLng(point.lat, point.lng),
+                    weight: weights[i]
                 });
+            }
+
+            var heatmap = new google.maps.visualization.HeatmapLayer({
+                data: heatmapdata,
+                dissipating: false,
+                map: map
             });
 
             map.fitBounds(bounds);
