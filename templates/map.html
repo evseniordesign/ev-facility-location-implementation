@@ -16,13 +16,12 @@
             ];
 
 			var weights = {{weights | tojson}};
-			//var points = [ {lat: 10, lng: 10}, {lat: 0, lng:10} ];
-			//var weights = [3, 10];
 
             var map = new google.maps.Map(document.getElementById("map_canvas"), {
                 zoom: 5,
             });
 
+			var markers = [];
             var heatmapdata = [];
 
             var bounds = new google.maps.LatLngBounds();
@@ -31,7 +30,10 @@
 
                 bounds.extend(new google.maps.LatLng(point.lat, point.lng));
 
-                //heatmapdata.push(new google.maps.LatLng(point.lat, point.lng));
+				markers.push(new google.maps.Marker({
+					position: point,
+					map: map,
+				}));
                 heatmapdata.push({
                     location: new google.maps.LatLng(point.lat, point.lng),
                     weight: weights[i]
