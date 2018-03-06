@@ -27,13 +27,23 @@ def run_algorithm():
         flash("Filetype not allowed", "error")
         return redirect(url_for('upload'))
 
-    data = process_input(request.files)
-    fcosts, ccosts = make_mapping(data, get_fcost, get_ccost)
+    try:
+        data = process_input(request.files)
+        fcosts, ccosts = make_mapping(data, get_fcost, get_ccost)
+    except:
+        flash("Incorrectly formatted data", "error")
+        return redirect(url_for('upload'))
+
     output = choose_facilities(fcosts, ccosts)
 
     facilities = [data['facilities'][facility.index]
-            for facility in output.keys()]
+            for facility in output.keys()
+            if 'lat' in data['facilities'][facility.index]
+            and 'long' in data['facilities'][facility.index]]
 
+    if not facilities:
+        flash("No facilities to open", "error")
+        return redirect(url_for('upload'))
 
     return render_template('map.html', points=facilities)
 
