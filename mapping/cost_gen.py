@@ -48,10 +48,10 @@ def get_ccost(client, facility):
     if "dummy" in facility:
         return opp_cost(client) 
 
-    lat1 = facility['lat']
-    long1 = facility['long']
-    lat2 = client['lat']
-    long2 = client['long']
+    lat1 = float(facility['lat'])
+    long1 = float(facility['long'])
+    lat2 = float(client['lat'])
+    long2 = float(client['long'])
 
     dist = distance(lat1, long1, lat2, long2)
     return dist
@@ -60,4 +60,4 @@ def opp_cost(client):
     """
     Calculate opportunity cost.
     """
-    return POWER_COST + client['population'] * USER_COST
+    return POWER_COST + float(client['population']) * USER_COST

@@ -13,9 +13,9 @@ app = Flask(__name__)
 app.secret_key = "super secret key"
 
 def allowed_files(files):
-    return (files['json'] is not None and files['json'].filename.endswith('.json')) or \
-    (files['csvfacility'] is not None and files['csvfacility'].filename.endswith('.csv')
-    and files['csvclient'] is not None and files['csvclient'].filename.endswith('.csv'))
+    return ('json' in files and files['json'].filename.endswith('.json')) or \
+    ('csvfacility' in files and files['csvfacility'].filename.endswith('.csv')
+    and 'csvclient' in files and files['csvclient'].filename.endswith('.csv'))
 
 @app.route('/')
 def upload(error = None):
@@ -30,7 +30,8 @@ def run_algorithm():
     try:
         data = process_input(request.files)
         fcosts, ccosts = make_mapping(data, get_fcost, get_ccost)
-    except:
+    except Exception as e:
+        print e
         flash("Incorrectly formatted data", "error")
         return redirect(url_for('upload'))
 

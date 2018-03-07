@@ -18,11 +18,11 @@ from facility_location.algorithm import choose_facilities, Algorithms
 from cost_gen import get_fcost, get_ccost
 
 def process_input(datafiles):
-    if datafiles['json'] is not None:
+    if 'json' in datafiles:
         return json.loads(datafiles['json'].read())
-    elif datafiles['csvfacility'] is not None and datafiles['csvclient'] is not None:
-        return {'facilities': csv.DictReader(datafiles['csvfacility']),
-                'clients': csv.DictReader(datafiles['csvclient'])
+    elif 'csvfacility' in datafiles and 'csvclient' in datafiles:
+        return {'facilities': [curr for curr in csv.DictReader(datafiles['csvfacility'])],
+                'clients': [curr for curr in csv.DictReader(datafiles['csvclient'])]
                }
 
 def make_mapping(data, facility_func, client_func, use_dummy=True):
