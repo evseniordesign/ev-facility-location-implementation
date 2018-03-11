@@ -4,21 +4,28 @@ Calls the LP solver and uses the result to create and approximation of optimal.
 """
 
 import random
-import lp
-from sortedcontainers import sortedset
-from utils import Client, Facility
+from collections import defaultdict
 from enum import Enum
+import facility_location.lp as lp
+from facility_location.utils import Client, Facility
+from sortedcontainers.sortedset import SortedSet
 
 class Algorithms(Enum):
+    """
+    Specifies type of algorithm to run.
+    """
     RAND = 1
     DET = 2
 
 
-def solve_lp(facility_costs, client_costs):
+def solve_lp(facilities, clients):
     """
-    Adjust args and pass arrays into LP solver. 
+    Adjust args and pass arrays into LP solver.
     Return primal and dual solutions.
     """
+    facility_costs = [facility['cost'] for facility in facilities]
+    client_costs = [client['costs'] for client in clients]
+
     flat_ccosts = reduce(lambda acc, curr: acc + curr, client_costs)
     sol = lp.solve(facility_costs, flat_ccosts)
     primal = sol['x']
@@ -26,37 +33,40 @@ def solve_lp(facility_costs, client_costs):
 
     return primal, dual
 
-def init_clients(client_costs, primal, dual, num_facilities):
+def init_clients(clients, primal, dual):
     """
     Return list of clients with LP information.
     """
-    return [Client(client_costs[i], i,
-               primal[(i+1)*num_facilities:(i+2)*num_facilities],
-               dual[i])
-        for i in xrange(0, len(client_costs))]
+    num_facilities = len(clients[0]['costs'])
 
-def init_facilities(facility_costs, primal):
+    return [Client(i,
+                   primal[(i + 1) * num_facilities : (i + 2) * num_facilities],
+                   dual[i],
+                   clientprops)
+            for i, clientprops in enumerate(clients)]
+
+def init_facilities(facilities, primal):
     """
     Return list of facilities with LP information.
     """
-    num_facilities = len(facility_costs)
-    return [Facility(i, facility_costs[i], primal[i])
-                  for i in xrange(0, num_facilities)]
+    return [Facility(i, primal[i], facilities[i])
+            for i in xrange(len(facilities))]
 
 def get_cheapest_neighbor(client, facilities):
     """
     Return neighbor's client that has the lowest cost.
     """
     adj_facilities = client.get_facility_list(facilities)
-    return min(adj_facilities, key=lambda fac: fac.open_cost)
+    return min(adj_facilities, key=lambda fac: fac['cost'])
 
 def get_probably_good_neighbor(client, facilities):
     """
     Return random facility with probability decided by decision vars
     """
-    total_real_membership = sum([client.facility_memberships[facility.index]
-                                 for facility in facilities
-                                 if client.is_member(facility.index)])
+    total_real_membership = sum(client.facility_memberships[facility.index]
+                                for facility in facilities
+                                if client.is_member(facility.index))
+
     number = random.uniform(0, total_real_membership)
     for facility in facilities:
         if client.is_member(facility.index):
@@ -87,10 +97,10 @@ def rounding_algorithm(facilities, clients, client_chooser, facility_chooser):
     Run deterministic or randomized rounding algorithm to determine
     facility location costs.
     """
-    assignments = dict()
+    assignments = defaultdict(set)
 
     # sorts clients by dual solution to reduce time complexity
-    clients = sortedset.SortedSet(clients, key=client_chooser)
+    clients = SortedSet(clients, key=client_chooser)
 
     while clients:
         # choose minimum client
@@ -113,15 +123,16 @@ def rounding_algorithm(facilities, clients, client_chooser, facility_chooser):
 
     return assignments
 
-def choose_facilities(facility_costs, client_costs, algorithm=Algorithms.RAND):
+def choose_facilities(facilities, clients, algorithm=Algorithms.RAND):
     """
     Run the LP solver and given algorithm to output a solution.
     The solution format is a dictionary with the keys being facilities
     and values being a set of clients.
     """
-    primal, dual = solve_lp(facility_costs, client_costs)
-    facilities = init_facilities(facility_costs, primal)
-    clients = init_clients(client_costs, primal, dual, len(facilities))
+    primal, dual = solve_lp(facilities, clients)
+    facilities = init_facilities(facilities, primal)
+    clients = init_clients(clients, primal, dual)
+
 
     if algorithm == Algorithms.RAND:
         client_chooser = lambda client: client.lowest_pair_cost + client.get_expected_cost()

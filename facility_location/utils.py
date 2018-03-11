@@ -16,27 +16,13 @@ class Client(object):
     """
     Representation of a client from LP output.
     """
-    c_costs = None
-    facility_memberships = None
-    lowest_pair_cost = None  # dual solution
-    index = -1
-    baseline = 0
 
-    def __init__(self, cij_costs, i, primal, dual):
-        self.c_costs = cij_costs
+    def __init__(self, i, primal, dual, props):
         self.index = i
         self.facility_memberships = primal
         self.lowest_pair_cost = dual
-
-        sorted_memberships = sorted(primal, reverse=True)
-        acc = 0
-        for index, decision_var in enumerate(sorted_memberships):
-            if acc < (1 - 1e-7): # acceptable error
-                acc += decision_var
-            else:
-                # baseline in between used and unused values
-                self.baseline = (sorted_memberships[index - 1] + sorted_memberships[index]) / 2
-                break
+        self.props = props
+        self.baseline = Client.get_baseline(self.facility_memberships)
 
     def __hash__(self):
         return hash(self.index)
@@ -46,6 +32,28 @@ class Client(object):
 
     def __repr__(self):
         return str(self)
+
+    def __getitem__(self, key):
+        return self.props[key]
+
+    def __setitem__(self, key, item):
+        self.props[key] = item
+
+    @staticmethod
+    def get_baseline(memberships):
+        """
+        Return baseline to be used with given memberships.
+        """
+        sorted_memberships = sorted(memberships, reverse=True)
+        acc = 0
+        for index, decision_var in enumerate(sorted_memberships):
+            if acc < (1 - 1e-7): # acceptable error
+                acc += decision_var
+            else:
+                # baseline in between used and unused values
+                return (sorted_memberships[index - 1] + sorted_memberships[index]) / 2
+
+        return 0
 
     def is_member(self, fac_index):
         """
@@ -63,24 +71,21 @@ class Client(object):
         """
         Return expected cost of assigning self to a neighbor
         """
-        acc = 0
-        for facility_number in xrange(len(self.c_costs)):
-            if self.is_member(facility_number):
-                acc += self.c_costs[facility_number] * self.facility_memberships[facility_number]
-        return acc
+        return sum(
+            self['costs'][facility_num] * self.facility_memberships[facility_num]
+            for facility_num in xrange(len(self['costs']))
+            if self.is_member(facility_num)
+        )
 
 class Facility(object):
     """
     Representation of a client from LP output.
     """
-    index = -1
-    open_cost = None
-    open_decision = None
 
-    def __init__(self, index, f_cost, primal):
+    def __init__(self, index, primal, props):
         self.index = index
-        self.open_cost = f_cost
         self.open_decision = primal
+        self.props = props
 
     def __hash__(self):
         return hash(self.index)
@@ -90,3 +95,9 @@ class Facility(object):
 
     def __repr__(self):
         return str(self)
+
+    def __getitem__(self, key):
+        return self.props[key]
+
+    def __setitem__(self, key, item):
+        self.props[key] = item
