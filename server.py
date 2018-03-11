@@ -29,18 +29,17 @@ def run_algorithm():
 
     try:
         data = process_input(request.files)
-        fcosts, ccosts = make_mapping(data, get_fcost, get_ccost)
+        make_mapping(data, get_fcost, get_ccost)
     except Exception as e:
         print e
         flash("Incorrectly formatted data", "error")
         return redirect(url_for('upload'))
 
-    output = choose_facilities(fcosts, ccosts)
+    output = choose_facilities(data['facilities'], data['clients'])
 
-    facilities = [data['facilities'][facility.index]
-            for facility in output.keys()
-            if 'lat' in data['facilities'][facility.index]
-            and 'long' in data['facilities'][facility.index]]
+    facilities = output.keys()
+    for facility in facilities:
+        facility['num_assigned_clients'] = len(output[facility])
 
     if not facilities:
         flash("No facilities to open", "error")

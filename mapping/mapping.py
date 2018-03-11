@@ -14,7 +14,6 @@ import csv
 import json
 import math
 
-from facility_location.algorithm import choose_facilities, Algorithms
 from cost_gen import get_fcost, get_ccost
 
 def process_input(datafiles):
@@ -35,11 +34,8 @@ def make_mapping(data, facility_func, client_func, use_dummy=True):
     if use_dummy:
         data['facilities'].append({'dummy': True})
 
-    fcosts = [float(facility_func(facility))
-              for facility in data['facilities']]
+    for facility in data['facilities']:
+        facility['cost'] = float(facility_func(facility))
 
-    ccosts = [[float(client_func(client, facility))
-               for facility in data['facilities']]
-               for client in data['clients']]
-
-    return fcosts, ccosts
+    for client in data['clients']:
+        client['costs'] = [float(client_func(client, facility)) for facility in data['facilities']]
