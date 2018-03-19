@@ -24,16 +24,42 @@
 			var markers = [];
             var heatmapdata = [];
 
+            var contentString = '<h1 id="firstHeading" class="firstHeading">This is a Point!</h1>' + 
+            '<p> Here we will be able to display information regarding what this point represents.';
+
             var bounds = new google.maps.LatLngBounds();
             for (var i = 0; i < points.length; i++) {
                 var point = points[i];
 
                 bounds.extend(new google.maps.LatLng(point.lat, point.lng));
 
-				markers.push(new google.maps.Marker({
-					position: point,
-					map: map,
-				}));
+				// markers.push(new google.maps.Marker({      // Old marker method. Needed marker variable.
+				// 	position: point,
+				// 	map: map,
+                //  title: 'Put Data Here!',
+				// }));
+
+                var marker = new google.maps.Marker({
+                    position: point,
+                    map: map,
+                    title: 'Put Data Here!',
+                });
+                markers.push(marker);
+
+
+                var infowindow = new google.maps.InfoWindow({
+                    content: contentString
+                });
+                
+
+                marker.addListener('click', (function(marker) {
+                    return function() {
+                        infowindow.open(map, marker);
+                    }
+                })(marker));
+
+
+
                 heatmapdata.push({
                     location: new google.maps.LatLng(point.lat, point.lng),
                     weight: weights[i]
