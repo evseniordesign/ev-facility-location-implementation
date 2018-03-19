@@ -9,7 +9,7 @@ from mapping.mapping import make_mapping, process_input
 from facility_location.algorithm import choose_facilities
 from mapping.cost_gen import get_fcost, get_ccost
 from common.helpers import distance
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 app.secret_key = "super secret key"
 
 def allowed_files(files):
