@@ -23,15 +23,19 @@
 
 			var markers = [];
             var heatmapdata = [];
+            var flightPlanCoordinates = [];
 
             var contentString = '<h1 id="firstHeading" class="firstHeading">This is where a rich Tesla owner lives!</h1>' + 
             '<p> Here we can see their houses are as big as Equatorial Guinea. WOW!';
 
 			var iconlocation = '/house.png'
 
+
             var bounds = new google.maps.LatLngBounds();
             for (var i = 0; i < points.length; i++) {
                 var point = points[i];
+
+                flightPlanCoordinates[i] = point;
 
                 bounds.extend(new google.maps.LatLng(point.lat, point.lng));
 
@@ -62,6 +66,16 @@
                     weight: weights[i]
                 });
             }
+
+
+            var flightPath = new google.maps.Polyline({
+                    path: flightPlanCoordinates,
+                    geodesic: true,
+                    strokeColor: '#FF00FF',
+                    strokeOpacity: 1.0,
+                    strokeWeight: 2,
+                    map: map,
+            });
 
             var heatmap = new google.maps.visualization.HeatmapLayer({
                 data: heatmapdata,
