@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <title>EV Charger Placer</title>
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/normalize.css')}}">
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/skeleton.css')}}">
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/upload.css')}}">
+        <link href="https://fonts.googleapis.com/css?family=Abril+Fatface|Open+Sans:400,700" rel="stylesheet">
     </head>
     <body>
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -12,14 +17,44 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
-    	{% if error %}
-    	<h2>Error: {{ error }}</h2>
-    	{% endif %}
-        <form method="post" action="/run" enctype = "multipart/form-data">
-              <input type="file" name="json" />
-              <input type="file" name="csvfacility" />
-              <input type="file" name="csvclient" />
-              <input type="submit" value="submit" />
-        </form>
+        
+        <div class="nav">
+            <span class="logo nav-item">Home</span>
+            <a class="nav-item" href="#">About</a>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <h2 class="big-header">Electric Vehicle Charger Placement</h2>
+                <div class="line"></div>
+                <h4><span class="big-number">1.</span> Choose the input type</h4>
+                <div class="row">
+                    <button id="json-sel">JSON</button>
+                    <button id="csv-sel">CSV</button>
+                </div>
+                <h4><span class="big-number">2.</span> Submit your files</h4>
+                <form method="post" action="/run" enctype = "multipart/form-data">
+                    <label id="json-file">
+                        JSON input
+                        <input type="file" name="json" />
+                    </label>
+                    <div id="csv-files" style="display:none;">
+                        <label>
+                            Facilities CSV
+                            <input type="file" name="csvfacility"/>
+                        </label>
+                        <label>
+                            Clients CSV
+                            <input type="file" name="csvclient"/>
+                        </label>
+                    </div>
+                    <input class="btn" type="submit" value="submit"/>
+                </form>
+                <div></div> 
+            </div>
+        </div>
+
+        
+        <script type="text/javascript" src="{{url_for('static', filename='js/upload.js')}}"></script>
     </body>
 </html>
