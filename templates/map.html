@@ -13,7 +13,7 @@
             {% for point in points %}
                 {lat: {{ point.lat }},
                  lng: {{ point.long }},
-                 num_clients: {{point.num_assigned_clients}}},
+                 num_assigned_clients: {{ point.num_assigned_clients }}},
             {% endfor %}
             ];
 
@@ -26,9 +26,8 @@
                 bounds.extend(new google.maps.LatLng(point.lat, point.lng));
 
                 return new google.maps.Marker({
-                    position: {lat: point.lat, long: point.long},
+                    position: point,
                     map: map,
-                    title: point.num_clients + ' assigned clients',
                 });
             });
 
