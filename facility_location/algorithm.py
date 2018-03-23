@@ -10,14 +10,6 @@ import facility_location.lp as lp
 from facility_location.utils import Client, Facility
 from sortedcontainers.sortedset import SortedSet
 
-class Algorithms(Enum):
-    """
-    Specifies type of algorithm to run.
-    """
-    RAND = 1
-    DET = 2
-
-
 def solve_lp(facilities, clients):
     """
     Adjust args and pass arrays into LP solver.
@@ -123,7 +115,7 @@ def rounding_algorithm(facilities, clients, client_chooser, facility_chooser):
 
     return assignments
 
-def choose_facilities(facilities, clients, algorithm=Algorithms.RAND):
+def choose_facilities(facilities, clients, algorithm='randomized'):
     """
     Run the LP solver and given algorithm to output a solution.
     The solution format is a dictionary with the keys being facilities
@@ -133,12 +125,11 @@ def choose_facilities(facilities, clients, algorithm=Algorithms.RAND):
     facilities = init_facilities(facilities, primal)
     clients = init_clients(clients, primal, dual)
 
-
-    if algorithm == Algorithms.RAND:
+    if algorithm == 'randomized':
         client_chooser = lambda client: client.lowest_pair_cost + client.get_expected_cost()
         facility_chooser = get_cheapest_neighbor
         return rounding_algorithm(facilities, clients, client_chooser, facility_chooser)
-    elif algorithm == Algorithms.DET:
+    elif algorithm == 'deterministic':
         client_chooser = lambda client: client.lowest_pair_cost
         facility_chooser = get_probably_good_neighbor
         return rounding_algorithm(facilities, clients, client_chooser, facility_chooser)
