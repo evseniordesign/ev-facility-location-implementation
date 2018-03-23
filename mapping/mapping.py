@@ -12,11 +12,12 @@ not a priority.
 
 import csv
 import json
-import math
-
 from cost_gen import get_fcost, get_ccost
 
 def process_input(datafiles):
+    """
+    Convert json and csv files to an array of dicts for cost generation.
+    """
     if 'json' in datafiles:
         return json.loads(datafiles['json'].read())
     elif 'csvfacility' in datafiles and 'csvclient' in datafiles:

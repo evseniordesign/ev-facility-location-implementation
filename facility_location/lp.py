@@ -38,43 +38,27 @@ def generate_gh(f_len, c_len):
     """
     Generates the 'less than' constraints for the LP.
     """
-    outerlist = []
+    coeffs = matrix(0.0, (2 * (f_len + c_len), f_len + c_len))
     result = []
 
     # -yi + xij
     for i in xrange(0, c_len):
         facility_num = i % f_len
-        inner = []
-        # -yi
-        for j in xrange(0, f_len):
-            inner.append(-1.0 if j == facility_num else 0.0)
-
-        # xij
-        for j in xrange(0, c_len):
-            inner.append(1.0 if j == i else 0.0)
-
+        coeffs[i, facility_num] = -1.0
+        coeffs[i, f_len + i] = 1.0
         result.append(0.0)
-        outerlist.append(inner)
 
     # yi
     for i in xrange(0, f_len):
-        inner = []
-        for j in xrange(0, c_len + f_len):
-            inner.append(1.0 if i == j else 0.0)
-
+        coeffs[i + c_len, i] = 1.0
         result.append(1.0)
-        outerlist.append(inner)
 
     # all >= 0
     for i in xrange(0, c_len + f_len):
-        inner = []
-        for j in xrange(0, c_len + f_len):
-            inner.append(-1.0 if i == j else 0.0)
-
+        coeffs[i + f_len + c_len, i] = -1.0
         result.append(0.0)
-        outerlist.append(inner)
 
-    return matrix(outerlist).trans(), matrix(result)
+    return coeffs, matrix(result)
 
 def generate_ab(f_len, c_costs):
     """
@@ -105,12 +89,18 @@ def generate_ab(f_len, c_costs):
 def solve(f_costs, c_costs):
     """
     Combines all constraints and sends the LP to the solver.
-    Solution is a dictionary with solution values associated 
+    Solution is a dictionary with solution values associated
     with variable key names. Ex. sol['x'] contains the solution for
     the values of the x vector.
     """
     coeffs = generate_coeffs(f_costs, c_costs)
     eq_mat, eq_vec = generate_ab(len(f_costs), c_costs)
     lt_mat, lt_vec = generate_gh(len(f_costs), len(c_costs))
-    sol = solvers.lp(c=coeffs, G=lt_mat, h=lt_vec, A=eq_mat, b=eq_vec)
+    try:
+        from cvxopt import glpk
+        sol = solvers.lp(c=coeffs, G=lt_mat, h=lt_vec, A=eq_mat, b=eq_vec,
+                         solver='glpk', options={'glpk':{'msg_lev':'GLP_MSG_OFF'}})
+    except ImportError:
+        sol = solvers.lp(c=coeffs, G=lt_mat, h=lt_vec, A=eq_mat, b=eq_vec)
+
     return sol

@@ -36,6 +36,9 @@ class Client(object):
     def __getitem__(self, key):
         return self.props[key]
 
+    def __contains__(self, key):
+        return key in self.props
+
     def __setitem__(self, key, item):
         self.props[key] = item
 
@@ -79,7 +82,7 @@ class Client(object):
 
 class Facility(object):
     """
-    Representation of a client from LP output.
+    Representation of a facility from LP output.
     """
 
     def __init__(self, index, primal, props):
@@ -98,6 +101,9 @@ class Facility(object):
 
     def __getitem__(self, key):
         return self.props[key]
+
+    def __contains__(self, key):
+        return key in self.props
 
     def __setitem__(self, key, item):
         self.props[key] = item
