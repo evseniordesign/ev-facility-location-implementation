@@ -11,7 +11,9 @@
         <script type="text/javascript">
             var points = [
             {% for point in points %}
-                {lat: {{ point.lat }}, lng: {{ point.long }}},
+                {lat: {{ point.lat }},
+                 lng: {{ point.long }},
+                 num_assigned_clients: {{ point.num_assigned_clients }}},
             {% endfor %}
             ];
 
