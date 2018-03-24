@@ -61,3 +61,15 @@ This approach means that we modify our algorithm to solve the capacitated facili
 
 We want to use Approach 1 because it seems simpler to implement and less prone to error.
 
+
+## GLPK
+This uses [GLPK](https://www.gnu.org/software/glpk/) to run LPs more quickly. If GLPK is not installed, the default CVXOPT solver is used, which will take much longer.  
+
+Download the `.tar.gz` file from GLPK's website and install.  
+```bash
+tar -xzvf <tarball name>
+cd <created folder>
+./configure
+make
+sudo make install
+```

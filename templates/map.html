@@ -17,22 +17,15 @@
             {% endfor %}
             ];
 
-            var bounds = new google.maps.LatLngBounds();
-            var map = new google.maps.Map(document.getElementById("map_canvas"), {
-                zoom: 15,
-            });
+            var unassigned = [
+            {% for client in unassigned %}
+                {lat: {{ client.lat }},
+                 lng: {{ client.long }}},
+            {% endfor %}
+            ];
 
-            var markers = points.map(point => {
-                bounds.extend(new google.maps.LatLng(point.lat, point.lng));
-
-                return new google.maps.Marker({
-                    position: point,
-                    map: map,
-                });
-            });
-
-            map.fitBounds(bounds);
-            map.panToBounds(bounds);
+            var house_img_url = "{{url_for('static', filename='image/house.png')}}";
         </script>
+        <script type="text/javascript" src="{{url_for('static', filename='js/gen_map.js')}}"> </script>
     </body>
 </html>
