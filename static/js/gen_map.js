@@ -16,7 +16,7 @@ unassigned.forEach(client => {
         content: 'Unassigned client'
     });
 
-    marker.addListener('click', marker => {
+    marker.addListener('click', () => {
         infowindow.open(map, marker);
     });
 });
@@ -29,11 +29,15 @@ var heatmap_points = points.map(point => {
         map,
     });
 
-    var infowindow = new google.maps.InfoWindow({
-        content: `<p>${point.num_assigned_clients} clients </p>`
-    });
+    if(point.num_assigned_clients === 1) {
+        var content = '<p>1 client</p>';
+    } else {
+        var content = `<p>${point.num_assigned_clients} clients</p>`;
+    }
 
-    marker.addListener('click', marker => {
+    var infowindow = new google.maps.InfoWindow({content});
+
+    marker.addListener('click', () => {
         infowindow.open(map, marker);
     });
 
