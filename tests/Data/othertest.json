@@ -1,0 +1,11 @@
+{
+    "facilities": [
+        {"lat": 1, "long": 3},
+        {"lat": 0, "long": 20}
+    ],
+    "clients": [
+        {"lat": 5, "long": 20, "population": 1000},
+        {"lat": 10, "long": 0, "population": 1000},
+        {"lat": -10, "long": 50, "population": 1000}
+    ]
+}
