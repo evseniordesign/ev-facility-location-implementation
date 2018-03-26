@@ -1,3 +1,4 @@
+import math
 from common.helpers import distance
 
 C_SCHEMA = ['lat', 'long']
@@ -61,3 +62,37 @@ def opp_cost(client):
     Calculate opportunity cost.
     """
     return POWER_COST + float(client['population']) * USER_COST
+
+def get_evcount(hh, rwd, ed, pd, hid, lid, cld, cbd, hh0d, hh1d, hh2d, hh3d):
+    """
+    Use a poisson lognormal model to calculate the expected number
+    of electric vehicle in each zone. The variables are as follows:
+    
+    hh   - total household count per zone
+    rwd  - residential worked density per acre
+    ed   - employment density per acre
+    pd   - population density per acre
+    hid  - high income (>$35k) density per acre
+    lid  - low income (<$35k) density per acre
+    cld  - centerline denity (measure of number of roads)
+    cbd  - distance to central business district
+    hh0d - households with 0 workers density per acre
+
+    The parameters are based on this research paper:
+    https://scholarworks.montana.edu/xmlui/bitstream/handle/1/9169/Wang_JTG_2015_A1b.pdf
+    """
+    x = [rwd, ed, pd, hid, lid, cld, cbd, hh0d, hh1d, hh2d, hh3d]
+    #beta = [.407, .019, -.036, 1.568, -1.135, -0.722, -0.029, -0.674, 1.395, 2.276, 3.053]
+
+    beta = [.035, .026, -.002, .012, -.012, -.012, -.248, -.01, .012, .01, .01]
+
+    E = 0.766*math.log(hh)
+
+    ev_count = 0
+    for i, j  in zip(x, beta):
+        ev_count = ev_count + i*j
+
+    print(ev_count)
+    ev_count = E*math.exp(ev_count - 2.109)
+
+    return ev_count
