@@ -4,6 +4,7 @@ sys.path.append('../')
 from facility_location.algorithm import choose_facilities
 from mapping.cost_gen import get_fcost, get_ccost
 from mapping.mapping import make_mapping, process_input
+from itertools import product
 
 def cost(solution):
     output = 0
@@ -14,22 +15,10 @@ def cost(solution):
 
     return output
 
-def permute(num_fac, num_cli):
-    counters = [0] * num_cli
-    yield counters
-
-    while counters.count(num_fac - 1) != num_cli:
-        for i in xrange(0, num_cli):
-            counters[i] += 1
-            if counters[i] == num_fac:
-                counters[i] = 0
-            else:
-                break
-        yield counters
-
 def bruteforce(data):
     min_cost = 0
-    for permutation in permute(len(data['facilities']), len(data['clients'])):
+    for permutation in product(range(len(data['facilities'])), repeat=len(data['clients'])):
+        permutation = list(permutation)
         curr_cost = 0
         facilities_used = set()
         for fac_num, client in zip(permutation, data['clients']):
