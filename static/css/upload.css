@@ -49,8 +49,12 @@ body {
     margin-bottom: 1em;
 }
 
+.row-spacing {
+  margin-top: -1%;
+}
+
 /***** Button restyle *****/
-button, .btn {
+button, .btn, .custom-file-upload {
   display: inline-block;
   height: 36px;
   padding: 0 30px;
@@ -80,4 +84,9 @@ button:hover {
 
 button:focus, .btn-focus {
     border-color: yellow;
+}
+
+/***** File input restyle *****/
+input[type="file"] {
+  display: none;
 }
