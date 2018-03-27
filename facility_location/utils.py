@@ -17,18 +17,17 @@ class Client(object):
     Representation of a client from LP output.
     """
 
-    def __init__(self, i, primal, dual, props):
-        self.index = i
+    def __init__(self, primal, dual, props):
         self.facility_memberships = primal
         self.lowest_pair_cost = dual
         self.props = props
         self.baseline = Client.get_baseline(self.facility_memberships)
 
     def __hash__(self):
-        return hash(self.index)
+        return hash(self.props['index'])
 
     def __str__(self):
-        return "Client index: %d" % self.index
+        return "Client index: %d" % self.props['index']
 
     def __repr__(self):
         return str(self)
@@ -68,7 +67,7 @@ class Client(object):
         """
         Return a list of facilities that self is a member of.
         """
-        return [f for f in facilities if self.is_member(f.index)]
+        return [f for f in facilities if self.is_member(f['index'])]
 
     def get_expected_cost(self):
         """
@@ -85,16 +84,15 @@ class Facility(object):
     Representation of a facility from LP output.
     """
 
-    def __init__(self, index, primal, props):
-        self.index = index
+    def __init__(self, primal, props):
         self.open_decision = primal
         self.props = props
 
     def __hash__(self):
-        return hash(self.index)
+        return hash(self.props['index'])
 
     def __str__(self):
-        return "Facility index: %d" % self.index
+        return "Facility index: %d" % self.props['index']
 
     def __repr__(self):
         return str(self)

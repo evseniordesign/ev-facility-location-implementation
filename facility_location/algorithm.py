@@ -31,17 +31,16 @@ def init_clients(clients, primal, dual):
     """
     num_facilities = len(clients[0]['costs'])
 
-    return [Client(i,
-                   primal[(i + 1) * num_facilities : (i + 2) * num_facilities],
+    return [Client(primal[(i + 1) * num_facilities : (i + 2) * num_facilities],
                    dual[i],
-                   clientprops)
-            for i, clientprops in enumerate(clients)]
+                   clients[i])
+            for i in xrange(len(clients))]
 
 def init_facilities(facilities, primal):
     """
     Return list of facilities with LP information.
     """
-    return [Facility(i, primal[i], facilities[i])
+    return [Facility(primal[i], facilities[i])
             for i in xrange(len(facilities))]
 
 def get_cheapest_neighbor(client, facilities):
@@ -55,14 +54,14 @@ def get_probably_good_neighbor(client, facilities):
     """
     Return random facility with probability decided by decision vars
     """
-    total_real_membership = sum(client.facility_memberships[facility.index]
+    total_real_membership = sum(client.facility_memberships[facility['index']]
                                 for facility in facilities
-                                if client.is_member(facility.index))
+                                if client.is_member(facility['index']))
 
     number = random.uniform(0, total_real_membership)
     for facility in facilities:
-        if client.is_member(facility.index):
-            number -= client.facility_memberships[facility.index]
+        if client.is_member(facility['index']):
+            number -= client.facility_memberships[facility['index']]
             if number < 0:
                 return facility
     return None
@@ -78,7 +77,7 @@ def get_adjacent_clients(orig_client, clients, facilities):
     adj_facilities = orig_client.get_facility_list(facilities)
     for client in clients:
         for facility in adj_facilities:
-            if client.is_member(facility.index):
+            if client.is_member(facility['index']):
                 adj_clients.add(client)
                 break
 
@@ -120,6 +119,8 @@ def choose_facilities(facilities, clients, algorithm='randomized'):
     Run the LP solver and given algorithm to output a solution.
     The solution format is a dictionary with the keys being facilities
     and values being a set of clients.
+    Assumes that each facility and client is a dict with the
+    cost and index fields filled in with numbers for each.
     """
     primal, dual = solve_lp(facilities, clients)
     facilities = init_facilities(facilities, primal)

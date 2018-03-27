@@ -11,7 +11,7 @@ def cost(solution):
     for fac in solution.keys():
         output += fac['cost']
         for client in solution[fac]:
-            output += client['costs'][fac.index]
+            output += client['costs'][fac['index']]
 
     return output
 

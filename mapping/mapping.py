@@ -42,10 +42,14 @@ def make_mapping(data, facility_func, client_func,
     if use_time_dist:
         get_time_distance(data)
 
-    for facility in data['facilities']:
+    for index in xrange(len(data['facilities'])):
+        facility = data['facilities'][index]
+        facility['index'] = index
         facility['cost'] = float(facility_func(facility))
 
-    for client in data['clients']:
+    for index in xrange(len(data['clients'])):
+        client = data['clients'][index]
+        client['index'] = index
         client['costs'] = [float(client_func(client, facility)) for facility in data['facilities']]
 
 def encode_location(location):
