@@ -3,10 +3,6 @@ var map = new google.maps.Map(document.getElementById("map_canvas"), {
     zoom: 15,
 });
 
-var clients_set = 0;
-var markers = [];
-var assigned_clients = [];
-
 unassigned.forEach(client => {
     bounds.extend(new google.maps.LatLng(client.lat, client.lng));
 
@@ -33,56 +29,30 @@ points.forEach(point => {
         map,
     });
 
-    markers.push(marker);
-
     if(point.assigned_clients.length === 1) {
         var content = '<p>1 client</p>';
     } else {
         var content = `<p>${point.assigned_clients.length} clients</p>`;
     }
 
-    point.assigned_clients.forEach(client => {
-        // bounds.extend(new google.maps.LatLng(client.lat, client.lng));
-
-        // var client_marker = new google.maps.Marker({
-        //     position: {lat: client.lat, lng: client.lng},
-        //     map,
-        //     //visible: markers[marker].visible,
-        // }).setVisible(false);
-
-        // //markers.push(client_marker);
-
-        assigned_clients.push(client);
-
-    });
-
-
-    var infowindow = new google.maps.InfoWindow({content});
-
-
-    marker.addListener('click', () => {
-        
-        infowindow.open(map, marker);
-
-        // if(clients_set) {
-            
-        // } else {
-            
-        // }
-        
-    });
-});
-
-assigned_clients.forEach(client => {
-    bounds.extend(new google.maps.LatLng(client.lat, client.lng));
+    var client_markers = point.assigned_clients.map(client => {
+        bounds.extend(new google.maps.LatLng(client.lat, client.lng));
 
         var client_marker = new google.maps.Marker({
             position: {lat: client.lat, lng: client.lng},
             map,
-            //visible: markers[marker].visible,
-        }).setVisible(false);
+        });
+        client_marker.setVisible(false);
+        return client_marker;
+    });
 
-        markers.push(client_marker);
+    var infowindow = new google.maps.InfoWindow({content});
+
+    marker.addListener('click', () => {
+        infowindow.open(map, marker);
+        var new_visible = !client_markers[0].getVisible();
+        client_markers.forEach(marker => marker.setVisible(new_visible));
+    });
 });
 
 map.fitBounds(bounds);
