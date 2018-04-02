@@ -63,7 +63,7 @@ def opp_cost(client):
     """
     return POWER_COST + float(client['population']) * USER_COST
 
-def get_evcount(hh, rwd, ed, pd, hid, lid, cld, cbd, hh0d, hh1d, hh2d, hh3d):
+def get_evcount(data):
     """
     Use a poisson lognormal model to calculate the expected number
     of electric vehicle in each zone. The variables are as follows:
@@ -74,25 +74,47 @@ def get_evcount(hh, rwd, ed, pd, hid, lid, cld, cbd, hh0d, hh1d, hh2d, hh3d):
     pd   - population density per acre
     hid  - high income (>$35k) density per acre
     lid  - low income (<$35k) density per acre
-    cld  - centerline denity (measure of number of roads)
+    [REMOVED] cld  - centerline denity (measure of number of roads)
     cbd  - distance to central business district
     hh0d - households with 0 workers density per acre
 
+    Total population of tract (exposure variable) 
+    
+    Fraction of population 16 years old or younger 
+    Median age (years) 
+    Male fraction 
+    African American fraction 
+    Average household size (# persons) 
+    Fraction of pop. with Bachelor's degree or higher
+    Population density (per square mile)
+    Fraction of workers commuting by driving 
+    Mean household income (dollars per year, in 2010) 
+    Fraction of households with income over $100,000 
+    Fraction of families below poverty level 
+
+    Land use balance
+    Employment density
+
     The parameters are based on this research paper:
     https://scholarworks.montana.edu/xmlui/bitstream/handle/1/9169/Wang_JTG_2015_A1b.pdf
+    
+    Format:
+    x = [rwd, ed, pd, hid, lid, cbd, hh0d, hh1d, hh2d, hh3d]
     """
-    x = [rwd, ed, pd, hid, lid, cld, cbd, hh0d, hh1d, hh2d, hh3d]
-    #beta = [.407, .019, -.036, 1.568, -1.135, -0.722, -0.029, -0.674, 1.395, 2.276, 3.053]
+    #beta = [.407, .019, -.036, 1.568, -1.135, -.719, -0.029, -0.674, 1.395, 2.276, 3.053]
 
-    beta = [.035, .026, -.002, .012, -.012, -.012, -.248, -.01, .012, .01, .01]
+    hh = data[0]
+    data = data[1:]
+    #beta = [.035, .026, -.002, .012, -.012, -.012, -.248, -.01, .012, .01, .01]
 
-    E = 0.766*math.log(hh)
+    beta = [1.05, .0248, 3.91, -2.64, -.42, 1.36, -.0000794, .36, -.00000144, .97, -.26, .3, -.0000688]
+    E = math.log(hh)
 
     ev_count = 0
-    for i, j  in zip(x, beta):
+    for i, j  in zip(data, beta):
         ev_count = ev_count + i*j
 
     print(ev_count)
-    ev_count = E*math.exp(ev_count - 2.109)
+    ev_count = E*math.exp(E + ev_count - 7.54)
 
     return ev_count
