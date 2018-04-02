@@ -13,14 +13,12 @@
             {% for point in points %}
                 {lat: {{ point.lat }},
                  lng: {{ point.long }},
-                 client_locs: [
+                 assigned_clients: [
                  {% for client in point.assigned_clients %}
-                    {client: {lat: {{client.lat}},
-                              lng: {{client.long}}
-                             }
-                    },
+                    {lat: {{client.lat}},
+                     lng: {{client.long}}},
                  {% endfor %}
-                 ],
+                 ]},
             {% endfor %}
             ];
 
