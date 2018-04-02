@@ -13,7 +13,12 @@
             {% for point in points %}
                 {lat: {{ point.lat }},
                  lng: {{ point.long }},
-                 num_assigned_clients: {{ point.num_assigned_clients }}},
+                 assigned_clients: [
+                 {% for client in point.assigned_clients %}
+                    {lat: {{client.lat}},
+                     lng: {{client.long}}},
+                 {% endfor %}
+                 ]},
             {% endfor %}
             ];
 
@@ -23,7 +28,7 @@
                  lng: {{ client.long }}},
             {% endfor %}
             ];
-
+            
             var house_img_url = "{{url_for('static', filename='image/house.png')}}";
         </script>
         <script type="text/javascript" src="{{url_for('static', filename='js/gen_map.js')}}"> </script>

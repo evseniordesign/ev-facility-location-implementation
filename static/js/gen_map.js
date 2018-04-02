@@ -21,7 +21,7 @@ unassigned.forEach(client => {
     });
 });
 
-var heatmap_points = points.map(point => {
+points.forEach(point => {
     bounds.extend(new google.maps.LatLng(point.lat, point.lng));
 
     var marker = new google.maps.Marker({
@@ -29,28 +29,30 @@ var heatmap_points = points.map(point => {
         map,
     });
 
-    if(point.num_assigned_clients === 1) {
+    if(point.assigned_clients.length === 1) {
         var content = '<p>1 client</p>';
     } else {
-        var content = `<p>${point.num_assigned_clients} clients</p>`;
+        var content = `<p>${point.assigned_clients.length} clients</p>`;
     }
+
+    var client_markers = point.assigned_clients.map(client => {
+        bounds.extend(new google.maps.LatLng(client.lat, client.lng));
+
+        var client_marker = new google.maps.Marker({
+            position: {lat: client.lat, lng: client.lng},
+            map,
+        });
+        client_marker.setVisible(false);
+        return client_marker;
+    });
 
     var infowindow = new google.maps.InfoWindow({content});
 
     marker.addListener('click', () => {
         infowindow.open(map, marker);
+        var new_visible = !client_markers[0].getVisible();
+        client_markers.forEach(marker => marker.setVisible(new_visible));
     });
-
-    return {
-        location: new google.maps.LatLng(point.lat, point.lng),
-        weight: point.num_assigned_clients,
-    };
-});
-
-new google.maps.visualization.HeatmapLayer({
-    data: heatmap_points,
-    dissipating: false,
-    map
 });
 
 map.fitBounds(bounds);

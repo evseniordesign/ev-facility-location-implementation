@@ -47,7 +47,7 @@ def run_algorithm():
     facilities = []
     for facility in output.keys():
         if 'dummy' not in facility:
-            facility['num_assigned_clients'] = len(output[facility])
+            facility['assigned_clients'] = output[facility]
             facilities.append(facility)
         else:
             unassigned_clients = list(output[facility])
