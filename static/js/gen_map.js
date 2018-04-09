@@ -38,6 +38,7 @@ points.forEach(point => {
             position: {lat: client.lat, lng: client.lng},
             visible: false,
             map,
+            icon: house_small_url,
         });
     });
 
