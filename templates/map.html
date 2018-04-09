@@ -37,8 +37,8 @@
             {% for line in powerlines %}
                 {start: {lat: {{line.startlat}}, lng: {{line.startlong}}},
                  end:   {lat: {{line.endlat}},   lng: {{line.endlong}}},
-                 beforeColor: {{line.beforecolor}},
-                 afterColor: {{line.aftercolor}},
+                 beforeColor: "{{line.beforecolor}}",
+                 afterColor: "{{line.aftercolor}}",
                 },
             {% endfor %}
             ];

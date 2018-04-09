@@ -64,7 +64,7 @@ for(line of powerlines) {
 
     line.polyline = new google.maps.Polyline({
         path: [line.start, line.end],
-        strokeColor: line.start.color,
+        strokeColor: line.beforeColor,
         strokeOpacity: 1.0,
         strokeWeight: 2,
         visible: false,
