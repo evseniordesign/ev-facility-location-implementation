@@ -37,4 +37,11 @@ window.onload = function() {
 		clients_label.innerText = clients_input.value.substring(
 			clients_input.value.lastIndexOf("\\") + 1, clients_input.value.length);
 	});
+
+	var power_input = document.getElementById("power-input");
+	var power_label = document.getElementById("power-label");
+	power_input.addEventListener("change", function() {
+		power_label.innerText = power_input.value.substring(
+			power_input.value.lastIndexOf("\\") + 1, power_input.value.length);
+	});
 }

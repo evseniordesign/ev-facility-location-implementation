@@ -45,6 +45,7 @@ def run_algorithm():
 
     unassigned_clients = []
     facilities = []
+    powerlines = data['powerlines']
     for facility in output.keys():
         if 'dummy' not in facility:
             facility['assigned_clients'] = output[facility]
@@ -58,7 +59,8 @@ def run_algorithm():
 
     return render_template('map.html',
                            points=facilities,
-                           unassigned=unassigned_clients)
+                           unassigned=unassigned_clients,
+                           powerlines=powerlines)
 
 if __name__ == '__main__':
     app.run()

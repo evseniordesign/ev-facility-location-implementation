@@ -23,9 +23,10 @@ def process_input(datafiles):
     """
     if 'json' in datafiles:
         return json.loads(datafiles['json'].read())
-    elif 'csvfacility' in datafiles and 'csvclient' in datafiles:
+    elif 'csvfacility' in datafiles and 'csvclient' in datafiles and 'csvpower' in datafiles:
         return {'facilities': [curr for curr in csv.DictReader(datafiles['csvfacility'])],
-                'clients': [curr for curr in csv.DictReader(datafiles['csvclient'])]
+                'clients': [curr for curr in csv.DictReader(datafiles['csvclient'])],
+                'powerlines': [curr for curr in csv.DictReader(datafiles['csvpower'])]
                }
 
 def make_mapping(data, facility_func, client_func,
