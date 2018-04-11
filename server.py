@@ -35,7 +35,7 @@ def run_algorithm():
 
     try:
         data = process_input(request.files)
-        make_mapping(data, get_fcost, get_ccost)
+        make_mapping(data, get_fcost, get_ccost, use_time_dist=True)
     except Exception as e:
         print e
         flash("Incorrectly formatted data", "error")

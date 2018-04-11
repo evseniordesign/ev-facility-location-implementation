@@ -1,14 +1,18 @@
 from common.helpers import distance
 from census import get_ev_count, fill_tract_params
+import math
 
 C_SCHEMA = ['lat', 'long']
 F_SCHEMA = ['lat', 'long']
 
-SERVICE_RADIUS = 4
+SERVICE_RADIUS = 1
 FAC_COST = 50
 
 POWER_COST = 2  # Based on city needs
 USER_COST = 15   # Opportunity cost for each user
+
+TIME_COST = 0.11
+PHYS_COST = 0.85
 
 def get_fcost(facility):
     """
@@ -28,13 +32,12 @@ def get_ccost(client, facility):
     if "dummy" in facility:
         return opp_cost(client) 
 
-    lat1 = float(facility['lat'])
-    long1 = float(facility['long'])
-    lat2 = float(client['lat'])
-    long2 = float(client['long'])
+    time_dist = client['time_dist'][facility['index']]
+    phys_dist = client['phys_dist'][facility['index']]
+    if phys_dist > SERVICE_RADIUS:
+        phys_dist **= 2
 
-    dist = distance(lat1, long1, lat2, long2)
-    return dist
+    return time_dist * TIME_COST + phys_dist * PHYS_COST
 
 def opp_cost(client):
     """

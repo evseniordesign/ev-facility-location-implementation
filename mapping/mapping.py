@@ -12,10 +12,8 @@ not a priority.
 
 import csv
 import json
-import requests
 from cost_gen import get_fcost, get_ccost
-
-BASE_MAP_REQ = 'https://maps.googleapis.com/maps/api/distancematrix/json?'
+from common.helpers import get_distance
 
 def process_input(datafiles):
     """
@@ -41,34 +39,17 @@ def make_mapping(data, facility_func, client_func,
         data['facilities'].append({'dummy': True})
 
     if use_time_dist:
-        get_time_distance(data)
+        get_distance(data)
 
     for index in xrange(len(data['facilities'])):
         facility = data['facilities'][index]
         facility['index'] = index
         facility['cost'] = float(facility_func(facility))
+        print facility['cost']
 
     for index in xrange(len(data['clients'])):
         client = data['clients'][index]
         client['index'] = index
         client['costs'] = [float(client_func(client, facility)) for facility in data['facilities']]
-
-def encode_location(location):
-    """
-    Convert location to string that is inserted into URL.
-    """
-    return '%s,%s' % (location['lat'], location['long'])
-
-def get_time_distance(data):
-    """
-    Add time_dist field that represents how long it takes
-    to drive from a given facility to a given client.
-    client['time_dist'][fac_num] contains the distance between the two in seconds.
-    """
-    origins = '|'.join(encode_location(cli) for cli in data['clients'])
-    destinations = '|'.join(encode_location(fac) for fac in data['facilities'])
-    maps_request = BASE_MAP_REQ + 'origins=' + origins + '&destinations=' + destinations
-    map_data = requests.get(maps_request).json()
-
-    for cli, results in zip(data['clients'], map_data['rows']):
-        cli['time_dist'] = [elem['duration']['value'] for elem in results['elements']]
+        print 'client'
+        print client['costs']
