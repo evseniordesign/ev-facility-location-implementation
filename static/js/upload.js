@@ -1,20 +1,34 @@
 /* Set up button event listeners */
 window.onload = function() {
 	var json_btn = document.getElementById("json-sel");
+	var json_elems = ["json-label", "json-info"];
 	var csv_btn = document.getElementById("csv-sel");
-	var json_file = document.getElementById("json-label");
-	var csv_files = document.getElementById("csv-files");
+	//var json_file = document.getElementById("json-label");
+	var csv_elems = ["csv-files", "csv-info"];
+	//var csv_files = document.getElementById("csv-files");
 	json_btn.addEventListener("click", function() {
 		csv_btn.blur();
 		json_btn.focus();
-		csv_files.style.display = "none";
-		json_file.style.display = "";
+		csv_elems.forEach(function(elem) {
+			document.getElementById(elem).style.display = "none";
+		});
+		json_elems.forEach(function(elem) {
+			document.getElementById(elem).style.display = "";
+		});
+		//csv_files.style.display = "none";
+		//json_file.style.display = "";
 	});
 	csv_btn.addEventListener("click", function() {
 		json_btn.blur();
 		csv_btn.focus();
-		json_file.style.display = "none";
-		csv_files.style.display = "";
+		json_elems.forEach(function(elem) {
+			document.getElementById(elem).style.display = "none";
+		});
+		csv_elems.forEach(function(elem) {
+			document.getElementById(elem).style.display = "";
+		});
+		//json_file.style.display = "none";
+		//csv_files.style.display = "";
 	});
 
 	var input_types = ["json", "facilities", "clients", "power"];
