@@ -1,42 +1,140 @@
-import numpy as np
-import mapping.cost_gen as cg
+"""
+This module generates census tract data based on a gamma distribution
+and means and standard deviations computed in a paper [needs citation].
+The module takes census tract data and estimates the number of
+Electric Vehicle users in a tract.
 
-MEANS = [4841, .236, 35.18, .495, .119, 2.77, .248, 3103, .783, 66416, .186, .144, .645, 1200.1] 
-STDDEVS= [2450, 0.059, 6.652, 0.033, .164, .5 ,.191, 3288, 0.091, 36273, .166, .124, .229, 1379.2]
+The parameters:
+Total population of tract (exposure variable)
+Fraction of population 16 years old or younger 
+Median age (years) 
+Male fraction 
+African American fraction 
+Average household size (# persons) 
+Fraction of pop. with Bachelor's degree or higher
+Population density (per square mile)
+Fraction of workers commuting by driving 
+Mean household income (dollars per year, in 2010) 
+Fraction of households with income over $100,000 
+Fraction of families below poverty level 
+Land use balance
+Employment density per square mile
+"""
+
+import numpy as np
+import math
+
+census_params = {
+    'population' : {
+        'mean': 4841,
+        'stddev': 2450,
+    },
+    'age_below_16_fraction' : {
+        'mean': .236,
+        'stddev': 0.059,
+        'beta': 1.05
+    },
+    'median_age' : {
+        'mean' : 35.18,
+        'stddev' : 6.652,
+        'beta': .0248
+    },
+    'male_fraction' : {
+        'mean': .495,
+        'stddev': 0.033,
+        'beta': 3.91
+    },
+    'african_american_fraction' : {
+        'mean': .119,
+        'stddev': .164,
+        'beta': -2.64
+    },
+    'average_household_size' : {
+        'mean': 2.77,
+        'stddev': .5,
+        'beta': -.42
+    },
+    'fraction_with_at_least_bachelors' : {
+        'mean': .248,
+        'stddev': .191,
+        'beta': 1.36
+    },
+    'population_density' : {
+        'mean': 3103,
+        'stddev': 3288,
+        'beta': -.0000794
+    },
+    'driving_commuter_fraction' : {
+        'mean': .783,
+        'stddev': 0.091,
+        'beta': .36
+    },
+    'mean_household_income' : {
+        'mean': 66416,
+        'stddev': 36273,
+        'beta': -.00000144
+    },
+    '100K+_income_fraction' : {
+        'mean': .186,
+        'stddev': .166,
+        'beta': .97
+    },
+    'poverty_fraction' : {
+        'mean': .144,
+        'stddev': .124,
+        'beta': -.26
+    },
+    'land_use_balance' : {
+        'mean': .645,
+        'stddev': .229,
+        'beta': .3
+    },
+    'employment_density' : {
+        'mean': 1200.1,
+        'stddev': 1379.2,
+        'beta': -.0000688
+    }
+}
 
 def get_gamma_params(mean, var):
 	theta = var/mean
 	k = mean/theta
-
 	return k, theta
 
-def generate_tract():
-	tract = []
-	for mean, sd in zip(MEANS, STDDEVS):
-		k, theta = get_gamma_params(mean, sd*sd)
-		estimate = np.random.gamma(k, theta, 1)[0]
-		tract.append(estimate)
-	return tract
+def fill_tract_params(tract={}):
+    for param in census_params:
+        if param in tract:
+            continue
+        mean = census_params[param]['mean']
+        sd = census_params[param]['stddev']
+        k, theta = get_gamma_params(mean, sd*sd)
+        estimate = np.random.gamma(k, theta, 1)[0]
+        tract[param] = estimate
+    return tract
 
-def predict_EVCount():
-	tract = generate_tract()
-	print("Population: " + str(tract[0]))
-	print("Age Below 16 Fraction: " + str(tract[1]))
-	print("Median age: " + str(tract[2]))
-	print("Male Fraction: " + str(tract[3]))
-	print("African American Fraction: " + str(tract[4]))
-	print("Average Houshold Size: " + str(tract[5]))
-	print("Fraction with at Least Bachelor's: " + str(tract[6]))
-	print("Population density: " + str(tract[7]))
-	print("Fraction of workers Commuting by driving: " + str(tract[8]))
-	print("Mean household income: " + str(tract[9]))
-	print("Fraction of $100K+ income: " + str(tract[10]))
-	print("Fraction of poverty: " + str(tract[11]))
-	print("Land Use Balance: " + str(tract[12]))
-	print("Employment Dennsity per sq mile: " + str(tract[13]))
+def tract_to_string(tract):
+    for param in tract:
+        print(param.replace("_", " ").title() + ": " + str(tract[param]))
+    print(" ")
 
-	print(" ")
+def get_ev_count(data):
+    """
+    Use a poisson lognormal model to calculate the expected number
+    of electric vehicle in each zone. The variables are listed in the top docstring.
 
-	count = cg.get_evcount(tract)
-	print("EV COUNT: " + str(count))
+    The parameters are based on this research paper:
+    https://scholarworks.montana.edu/xmlui/bitstream/handle/1/9169/Wang_JTG_2015_A1b.pdf
+    """
 
+    pop = int(data['population'])
+    pop = pop if pop > 0 else 1
+    #beta = [1.05, .0248, 3.91, -2.64, -.42, 1.36, -.0000794, .36, -.00000144, .97, -.26, .3, -.0000688]
+    E = math.log(pop)
+
+    ev_count = 0
+    for param in census_params:
+        if param == 'population':
+            continue
+        ev_count += census_params[param]['beta'] * data[param]
+
+    return E*math.exp(E + ev_count - 7.54)
