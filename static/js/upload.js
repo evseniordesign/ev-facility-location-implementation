@@ -1,7 +1,7 @@
 /* Set up button event listeners */
 window.onload = function() {
 	var json_btn = document.getElementById("json-sel");
-	var json_elems = ["json-label", "json-info"];
+	var json_elems = ["json-files", "json-info"];
 	var csv_btn = document.getElementById("csv-sel");
 	//var json_file = document.getElementById("json-label");
 	var csv_elems = ["csv-files", "csv-info"];
