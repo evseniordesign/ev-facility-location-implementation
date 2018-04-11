@@ -5,10 +5,10 @@ C_SCHEMA = ['lat', 'long']
 F_SCHEMA = ['lat', 'long']
 
 SERVICE_RADIUS = 4
-FAC_COST = 500
+FAC_COST = 50
 
 POWER_COST = 2  # Based on city needs
-USER_COST = 10   # Opportunity cost for each user
+USER_COST = 15   # Opportunity cost for each user
 
 def get_fcost(facility):
     """
