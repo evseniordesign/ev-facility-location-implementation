@@ -58,6 +58,9 @@ def get_distance(data):
                 client['time_dist'].append(float(time))
                 client['phys_dist'].append(float(dist))
 
+        # Currently just use the cache
+        return
+
     for client in data['clients']:
         origins = encode_location(client)
         timedist = []

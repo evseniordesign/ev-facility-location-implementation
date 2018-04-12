@@ -45,7 +45,11 @@ def run_algorithm():
 
     unassigned_clients = []
     facilities = []
-    powerlines = data['powerlines']
+    powerlines = []
+
+    if 'powerlines' in data:
+        powerlines = data['powerlines']
+
     for facility in output.keys():
         if 'dummy' not in facility:
             facility['assigned_clients'] = output[facility]

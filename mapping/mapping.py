@@ -21,11 +21,15 @@ def process_input(datafiles):
     """
     if 'json' in datafiles:
         return json.loads(datafiles['json'].read())
-    elif 'csvfacility' in datafiles and 'csvclient' in datafiles and 'csvpower' in datafiles:
-        return {'facilities': [curr for curr in csv.DictReader(datafiles['csvfacility'])],
-                'clients': [curr for curr in csv.DictReader(datafiles['csvclient'])],
-                'powerlines': [curr for curr in csv.DictReader(datafiles['csvpower'])]
-               }
+    elif 'csvfacility' in datafiles and 'csvclient' in datafiles:
+        out = {'facilities': [curr for curr in csv.DictReader(datafiles['csvfacility'])],
+               'clients': [curr for curr in csv.DictReader(datafiles['csvclient'])],
+              }
+
+        if 'powerlines' in datafiles:
+            out['powerlines'] = [curr for curr in csv.DictReader(datafiles['csvpower'])]
+
+        return out
 
 def make_mapping(data, facility_func, client_func,
                  use_dummy=True, use_time_dist=False):
@@ -45,11 +49,8 @@ def make_mapping(data, facility_func, client_func,
         facility = data['facilities'][index]
         facility['index'] = index
         facility['cost'] = float(facility_func(facility))
-        print facility['cost']
 
     for index in xrange(len(data['clients'])):
         client = data['clients'][index]
         client['index'] = index
         client['costs'] = [float(client_func(client, facility)) for facility in data['facilities']]
-        print 'client'
-        print client['costs']
