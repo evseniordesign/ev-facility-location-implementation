@@ -5,6 +5,7 @@ Run with `FLASK_APP=server.py flask run` after doing a pip install.
 from flask import Flask, flash, render_template, redirect, request, url_for
 from mapping.cost_gen import get_fcost, get_ccost
 from mapping.mapping import make_mapping, process_input
+from mapping.powerlines import color_powerlines
 from facility_location.algorithm import choose_facilities
 app = Flask(__name__, static_url_path='/static')
 app.secret_key = "super secret key"
@@ -16,6 +17,10 @@ def allowed_files(files):
     return ('json' in files and files['json'].filename.endswith('.json')) or \
     ('csvfacility' in files and files['csvfacility'].filename.endswith('.csv')
      and 'csvclient' in files and files['csvclient'].filename.endswith('.csv'))
+
+def user_error(message):
+    flash(message, 'error')
+    return redirect(url_for('upload'))
 
 @app.route('/')
 def upload(error=None):
@@ -30,25 +35,30 @@ def run_algorithm():
     Run the algorithm and present google maps output to the user.
     """
     if not allowed_files(request.files):
-        flash("Filetype not allowed", "error")
-        return redirect(url_for('upload'))
-
-    try:
-        data = process_input(request.files)
-        make_mapping(data, get_fcost, get_ccost, use_time_dist=True)
-    except Exception as e:
-        print e
-        flash("Incorrectly formatted data", "error")
-        return redirect(url_for('upload'))
-
-    output = choose_facilities(data['facilities'], data['clients'])
+        return user_error('Filetype not allowed')
 
     unassigned_clients = []
     facilities = []
     powerlines = []
 
+    data = process_input(request.files)
+
+    if not data:
+        return user_error('Not enough data')
+
+    try:
+        make_mapping(data, get_fcost, get_ccost, use_time_dist=True)
+    except (KeyError, ValueError):
+        return user_error('Incorrectly formatted data')
+
+    output = choose_facilities(data['facilities'], data['clients'])
+
     if 'powerlines' in data:
-        powerlines = data['powerlines']
+        try:
+            powerlines = data['powerlines']
+            color_powerlines(data, output)
+        except KeyError:
+            return user_error('Incorrectly formatted data')
 
     for facility in output.keys():
         if 'dummy' not in facility:
@@ -58,8 +68,7 @@ def run_algorithm():
             unassigned_clients = list(output[facility])
 
     if not facilities:
-        flash("No facilities to open", "error")
-        return redirect(url_for('upload'))
+        return user_error('No facilities to open')
 
     return render_template('map.html',
                            points=facilities,

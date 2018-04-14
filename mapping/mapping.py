@@ -14,7 +14,7 @@ import csv
 import json
 from multiprocessing import Pool
 from cost_gen import get_fcost, get_ccost
-from common.helpers import get_distance
+from common.helpers import get_map_distance
 
 def process_input(datafiles):
     """
@@ -23,14 +23,15 @@ def process_input(datafiles):
     if 'json' in datafiles:
         return json.loads(datafiles['json'].read())
     elif 'csvfacility' in datafiles and 'csvclient' in datafiles:
-        out = {'facilities': [curr for curr in csv.DictReader(datafiles['csvfacility'])],
-               'clients': [curr for curr in csv.DictReader(datafiles['csvclient'])],
-              }
+        out = {'facilities': list(csv.DictReader(datafiles['csvfacility'])),
+               'clients': list(csv.DictReader(datafiles['csvclient']))}
 
-        if 'powerlines' in datafiles:
-            out['powerlines'] = [curr for curr in csv.DictReader(datafiles['csvpower'])]
+        if 'csvpower' in datafiles:
+            out['powerlines'] = list(csv.DictReader(datafiles['csvpower']))
 
         return out
+    else:
+        return None
 
 def make_mapping(data, facility_func, client_func,
                  use_dummy=True, use_time_dist=False):
@@ -45,7 +46,7 @@ def make_mapping(data, facility_func, client_func,
         data['facilities'].append({'dummy': True})
 
     if use_time_dist:
-        get_distance(data)
+        get_map_distance(data)
 
     fac_costs = pool.map_async(facility_func, data['facilities'])
     for index, fac in enumerate(data['facilities']):
