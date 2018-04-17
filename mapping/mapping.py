@@ -5,9 +5,6 @@ Assumes the following format:
 "facilities:" [{"lat": float, "long": float}],
 "clients": [{"lat": float, "long": float}]
 }
-I really just made this up. Feel free to change
-Also I think we should attach names to facilities, but that's
-not a priority.
 """
 
 import csv
@@ -48,6 +45,7 @@ def make_mapping(data, facility_func, client_func,
     if use_time_dist:
         get_map_distance(data)
 
+    # Create async tasks to get costs
     fac_costs = pool.map_async(facility_func, data['facilities'])
     for index, fac in enumerate(data['facilities']):
         fac['index'] = index
@@ -59,6 +57,7 @@ def make_mapping(data, facility_func, client_func,
         client_costs.append([pool.apply_async(client_func, (client, facility))
                              for facility in data['facilities']])
 
+    # Get results of async tasks and assign to cost vars
     fac_costs = fac_costs.get()
     for facility, cost in zip(data['facilities'], fac_costs):
         facility['cost'] = cost

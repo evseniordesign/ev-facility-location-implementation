@@ -30,9 +30,12 @@ def search_for_substation(start, adj_list, powerlines):
     Search for the substation that start is connected to and return the path.
     """
     visited = set()
-    parents = dict()
     bfs_q = Queue.Queue()
 
+    # Used to reconstruct path
+    parents = dict()
+
+    # Find where to start in powerlines graph, where "start" is connected to
     for line in powerlines:
         if start['long'] == line['startlong'] and start['lat'] == line['startlat'] or \
                 start['long'] == line['endlong'] and start['lat'] == line['endlat']:
@@ -42,9 +45,11 @@ def search_for_substation(start, adj_list, powerlines):
         # this start node isn't connected
         return []
 
+    # BFS for substation
     while not bfs_q.empty():
         curr = bfs_q.get()
 
+        # Path found, backtrack and return path
         if powerlines[curr]['type'] == 'substation':
             path = [curr]
             while curr in parents.keys():
@@ -75,15 +80,22 @@ def color_powerlines(data, output):
         line['beforecolor'] = 0
         line['aftercolor'] = 0
 
+    # Adjacency list modeling powerline graph
     adj_list = [[line1['index']
                  for line1 in powerlines if is_adjacent(line1, line2)]
                 for line2 in powerlines]
 
+    # search for a substation
+    # Anything along the path is "used" by this EV user
+    # Keep a running count of people using each line
+
+    # before colors
     for client in data['clients']:
         path = search_for_substation(client, adj_list, powerlines)
         for line in path:
             line['beforecolor'] += 1
 
+    # after colors
     for facility in output.keys():
         if 'dummy' in facility:
             for client in output[facility]:
@@ -95,7 +107,7 @@ def color_powerlines(data, output):
             for line in path:
                 line['aftercolor'] += 1
 
+    # convert numbers to colors
     for line in powerlines:
         line['aftercolor'] = num_to_color(line['aftercolor'], line['capacity'])
         line['beforecolor'] = num_to_color(line['beforecolor'], line['capacity'])
-

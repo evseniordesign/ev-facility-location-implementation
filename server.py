@@ -44,11 +44,14 @@ def run_algorithm():
     data = process_input(request.files)
 
     if not data:
+        # User didn't provide enough files
         return user_error('Not enough data')
 
     try:
         make_mapping(data, get_fcost, get_ccost, use_time_dist=True)
     except (KeyError, ValueError):
+        # Data didn't have correct keys
+        # Either incomplete or invalid data files
         return user_error('Incorrectly formatted data')
 
     output = choose_facilities(data['facilities'], data['clients'])
@@ -60,6 +63,7 @@ def run_algorithm():
         except KeyError:
             return user_error('Incorrectly formatted data')
 
+    # Create objects to output to map
     for facility in output.keys():
         if 'dummy' not in facility:
             facility['assigned_clients'] = output[facility]

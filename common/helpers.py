@@ -10,6 +10,7 @@ import json
 BASE_MAP_REQ = 'https://maps.googleapis.com/maps/api/distancematrix/json?'
 M_TO_MI = 0.000621371
 SEC_TO_MIN = 1 / 60.0
+DEG_TO_MI = 1 / 69.0
 CLI_PER_REQ = 4
 FAC_PER_REQ = 25
 
@@ -41,26 +42,29 @@ def encode_location(location):
     return '%s,%s' % (location['lat'], location['long'])
 
 def matrix_request(clientchunk, facilitychunk):
+    """
+    Send request for distances between the given clients and facilities.
+    Uses the Google Maps Distance Matrix API.
+    """
     origins = '|'.join(encode_location(cli) for cli in clientchunk)
     destinations = '|'.join(encode_location(fac) for fac in facilitychunk)
     maps_request = BASE_MAP_REQ + 'origins=' + origins + '&destinations=' + destinations
     return requests.get(maps_request).json()['rows']
 
-def get_map_distance(data):
+def try_cache(data):
     """
-    Add time_dist field that represents how long it takes
-    to drive from a given facility to a given client.
-    client['time_dist'][fac_num] contains the distance between the two in seconds.
+    Try to get distance data from cache.
+    Returns true if all values could be obtained from cache.
     """
     with open('cache.json', 'r') as cachefile:
         cache = json.load(cachefile)
 
-        for clientnum, client in enumerate(data['clients']):
+        for client in data['clients']:
             client['time_dist'] = []
             client['phys_dist'] = []
             client_str = ' '.join((client['lat'], client['long']))
 
-            for facilitynum, facility in enumerate(data['facilities']):
+            for facility in data['facilities']:
                 if 'dummy' in facility:
                     continue
 
@@ -80,24 +84,49 @@ def get_map_distance(data):
                     dist = cache[key]['dist']
                     client['time_dist'].append(float(time))
                     client['phys_dist'].append(float(dist))
+                else:
+                    return False
 
-        # Currently just use the cache
-        return
+    return True
+
+
+def get_map_distance(data):
+    """
+    Add time_dist field that represents how long it takes
+    to drive from a given facility to a given client.
+    client['time_dist'][fac_num] contains the distance between the two in seconds.
+    """
+    # Use line dist if not found in cache
+    if not try_cache(data):
+        for client in data['clients']:
+            client['phys_dist'] = [distance(client['lat'], client['long'],
+                                            facility['lat'], facility['long'])
+                                   for facility in data['facilities']]
+
+            client['time_dist'] = [0 for _ in xrange(len(data['facilities']))]
+
+    # Not currently using API because it is expensive
+    # 2500 requests/day free limit
+    return
 
     pool = Pool()
+    # API can only handle 100 elements at once, and at most
+    # 25 origins or 25 destinations
+    # Break data into 100 element chunks that the API will process
     dist_results = [pool.map_async(partial(matrix_request, clientchunk),
                                    chunks(data['facilities'], FAC_PER_REQ))
                     for clientchunk in chunks(data['clients'], CLI_PER_REQ)]
 
+    # Combine dist_results into usable format
     for cindex, clientchunk in enumerate(chunks(data['clients'], CLI_PER_REQ)):
-        result = dist_results[cindex].get()
+        api_result = dist_results[cindex].get()
 
         for i, client in enumerate(clientchunk):
             client['time_dist'] = [elem['duration']['value'] * SEC_TO_MIN
-                                   for elem in result[i]['elements']]
+                                   for elem in api_result[i]['elements']]
 
             client['phys_dist'] = [elem['distance']['value'] * M_TO_MI
-                                   for elem in result[i]['elements']]
+                                   for elem in api_result[i]['elements']]
 
     pool.close()
     pool.join()

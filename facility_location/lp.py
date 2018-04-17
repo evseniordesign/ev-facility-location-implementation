@@ -30,7 +30,10 @@ def generate_coeffs(f_costs, c_costs):
     """
     Generates the maximization equation for the LP.
     """
+    # fi * yi
     output = list(f_costs)
+
+    # cij * xij
     output.extend(c_costs)
     return matrix(output)
 
@@ -38,6 +41,7 @@ def generate_gh(f_len, c_len):
     """
     Generates the 'less than' constraints for the LP.
     """
+    # Most values are 0, loops will only redefine nonzero vals to save time
     coeffs = matrix(0.0, (2 * (f_len + c_len), f_len + c_len))
     result = []
 
@@ -97,6 +101,7 @@ def solve(f_costs, c_costs):
     eq_mat, eq_vec = generate_ab(len(f_costs), c_costs)
     lt_mat, lt_vec = generate_gh(len(f_costs), len(c_costs))
     try:
+        # check if GLPK is available
         from cvxopt import glpk
         sol = solvers.lp(c=coeffs, G=lt_mat, h=lt_vec, A=eq_mat, b=eq_vec,
                          solver='glpk', options={'glpk':{'msg_lev':'GLP_MSG_OFF'}})
