@@ -58,14 +58,28 @@ def get_map_distance(data):
         for clientnum, client in enumerate(data['clients']):
             client['time_dist'] = []
             client['phys_dist'] = []
+            client_str = ' '.join((client['lat'], client['long']))
+
             for facilitynum, facility in enumerate(data['facilities']):
                 if 'dummy' in facility:
                     continue
 
-                time = cache[clientnum][facilitynum]['time']
-                dist = cache[clientnum][facilitynum]['dist']
-                client['time_dist'].append(float(time))
-                client['phys_dist'].append(float(dist))
+                facility_str = ' '.join((facility['lat'], facility['long']))
+
+                key1 = ' '.join((facility_str, client_str))
+                key2 = ' '.join((client_str, facility_str))
+                key = None
+
+                if key1 in cache:
+                    key = key1
+                elif key2 in cache:
+                    key = key2
+
+                if key:
+                    time = cache[key]['time']
+                    dist = cache[key]['dist']
+                    client['time_dist'].append(float(time))
+                    client['phys_dist'].append(float(dist))
 
         # Currently just use the cache
         return
