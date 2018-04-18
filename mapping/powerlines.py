@@ -39,7 +39,7 @@ def search_for_substation(start, adj_list, powerlines):
     for line in powerlines:
         if start['long'] == line['startlong'] and start['lat'] == line['startlat'] or \
                 start['long'] == line['endlong'] and start['lat'] == line['endlat']:
-            bfs_q.put(line)
+            bfs_q.put(line['index'])
             break
     else:
         # this start node isn't connected
@@ -72,6 +72,13 @@ def color_powerlines(data, output):
     Add colors for the powerlines before and after facility assignment.
     """
     powerlines = data['powerlines']
+
+    # temporary hack
+    for line in powerlines:
+        if 'beforecolor' in line and line['beforecolor']:
+            line['beforecolor_tmp'] = line['beforecolor']
+        if 'aftercolor' in line and line['aftercolor']:
+            line['aftercolor_tmp'] = line['aftercolor']
 
     for index, line in enumerate(powerlines):
         # store number of evs using the line for now
@@ -109,5 +116,10 @@ def color_powerlines(data, output):
 
     # convert numbers to colors
     for line in powerlines:
-        line['aftercolor'] = num_to_color(line['aftercolor'], line['capacity'])
-        line['beforecolor'] = num_to_color(line['beforecolor'], line['capacity'])
+        # Continuation of temporary hack
+        if 'beforecolor_tmp' in line:
+            line['beforecolor'] = line['beforecolor_tmp']
+            line['aftercolor'] = line['aftercolor_tmp']
+        else:
+            line['aftercolor'] = num_to_color(line['aftercolor'], line['capacity'])
+            line['beforecolor'] = num_to_color(line['beforecolor'], line['capacity'])
