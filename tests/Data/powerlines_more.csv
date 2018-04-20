@@ -1,0 +1,58 @@
+substation,startlat,startlong,endlat,endlong,beforecolor,aftercolor,type,capacity,estimated load (before),estimated load (after),,,
+Kingsbery Substation,30.265628,-97.687227,30.265628,-97.687227,Green,Green,,,,,,,
+Kingsbery Substation,30.265628,-97.687227,30.264339,-97.686835,Green,Green,,,,,,,
+Kingsbery Substation,30.264339,-97.686835,30.262704,-97.687005,Green,Green,,,,,,,
+Kingsbery Substation,30.262704,-97.687005,30.260768,-97.687242,Green,Green,,,,,,,
+Kingsbery Substation,30.260768,-97.687242,30.259215,-97.687376,Green,Green,,,,,,,
+Kingsbery Substation,30.259215,-97.687376,30.257076,-97.6876,Green,Green,,,,,,,
+Kingsbery Substation,30.257076,-97.6876,30.254276,-97.687897,Green,Green,,,,,,,
+Kingsbery Substation,30.254276,-97.687897,30.251826,-97.688117,Green,Green,,,,,,,
+Kingsbery Substation,30.251826,-97.688117,30.24778,-97.688618,Green,Green,,,,,,,
+Kingsbery Substation,30.24778,-97.688618,30.239723,-97.689452,Green,Green,,,,,,,
+Kingsbery Substation,30.239723,-97.689452,30.230041,-97.689539,Green,Green,,,,,,,
+Kingsbery Substation,30.230041,-97.689539,30.228485,-97.689443,Green,Green,,,,,,,
+Kingsbery Substation,30.230041,-97.689539,30.229575,-97.696641,Red,Green,,,,,,,
+Kingsbery Substation,30.229575,-97.696641,30.232072,-97.702402,Red,Green,,,,,,,
+Kingsbery Substation,30.228485,-97.689443,30.220786,-97.692882,Yellow,Yellow,,,,,,,
+Kingsbery Substation,30.220786,-97.692882,30.218803,-97.69164,Yellow,Yellow,,,,,,,
+Kingsbery Substation,30.218803,-97.69164,30.215995,-97.699788,Yellow,Yellow,,,,,,,
+Kingsbery Substation,30.215995,-97.699788,30.212821,-97.711638,Yellow,Yellow,,,,,,,
+Kingsbery Substation,30.212821,-97.711638,30.213365,-97.715703,Yellow,Yellow,,,,,,,
+Kingsbery Substation,30.212821,-97.711638,30.215851,-97.71079,Yellow,Yellow,,,,,,,
+Kingsbery Substation,30.213365,-97.715703,30.214316,-97.724176,Yellow,Yellow,,,,,,,
+Kingsbery Substation,30.214316,-97.724176,30.214316,-97.724176,Yellow,Yellow,,,,,,,
+Substation - Bravo,30.2338,-97.76885,30.23472,-97.76886,Green,Green,Substation,100,0.5,0.6,,(North branch first),sub-2
+,30.23472,-97.76886,30.23599,-97.76822,Green,Green,Commercial,100,0.5,0.6,,,2-3
+,30.23599,-97.76822,30.23727,-97.76748,Green,Green,Commercial,100,0.5,0.6,,,3-4
+,30.23727,-97.76748,30.23845,-97.76682,Green,Green,Commercial,100,0.5,0.6,,,4-5
+,30.23845,-97.76682,30.23998,-97.76592,Green,Green,Commercial,100,0.5,0.6,,,5-6
+,30.23998,-97.76592,30.24145,-97.76508,Yellow,Green,Residential,75,0.8,0.7,,,6-7
+,30.24145,-97.76508,30.24385,-97.76435,Yellow,Green,Residential,75,0.8,0.7,,,7-8
+,30.24385,-97.76435,30.246,-97.76351,Yellow,Green,Residential,75,0.8,0.7,,,8-9
+,30.246,-97.76351,30.24787,-97.76232,Yellow,Green,Residential,75,0.8,0.7,,,9-10
+,30.24787,-97.76232,30.25053,-97.76066,Red,Yellow,Residential,75,0.9,0.8,,,10-11
+,30.25053,-97.76066,30.25283,-97.75909,Red,Yellow,Residential,75,0.9,0.8,,,11-12
+,30.25283,-97.75909,30.25523,-97.75766,Red,Yellow,Residential,75,0.9,0.8,,,12-13
+,30.24787,-97.76232,30.24843,-97.75877,Red,Yellow,Residential,75,0.9,0.8,,,10-10_1
+,30.24843,-97.75877,30.248996,-97.757629,Red,Yellow,Residential,75,0.9,0.8,,(Client Node),10-10_2
+,30.2338,-97.76885,30.23319,-97.76846,Green,Green,Substation,100,0.6,0.6,,South Branch,aub - a
+,30.23319,-97.76846,30.23255,-97.76721,Green,Green,Commercial,100,0.6,0.6,,,a-b
+,30.23255,-97.76721,30.23192,-97.76596,Green,Green,Commercial,100,0.6,0.6,,,b-c
+,30.23192,-97.76596,30.23057,-97.76679,Yellow,Green,Commercial,100,0.78,0.65,,,c-d
+,30.23057,-97.76679,30.2292,-97.76772,Yellow,Green,Commercial,100,0.78,0.68,,,d-e
+,30.2292,-97.76772,30.22819,-97.76839,Yellow,Green,Commercial,100,0.78,0.7,,,e-f
+,30.22819,-97.76839,30.22684,-97.76636,Yellow,Green,Commercial,100,0.8,0.71,,,f-f_1_1
+,30.22819,-97.76839,30.22941,-97.77188,Yellow,Green,Commercial,100,0.84,0.73,,(a random school),f-f_1_2
+,30.23192,-97.76596,30.23241,-97.76571,Yellow,Green,Commercial,100,0.78,0.67,,,c-c_1
+,30.23241,-97.76571,30.23128,-97.76362,Yellow,Green,Commercial,100,0.78,0.69,,,c_1-d_1
+,30.23128,-97.76362,30.23032,-97.7615,Yellow,Green,Commercial,100,0.78,0.71,,,d_1-e_1
+,30.23032,-97.7615,30.22933,-97.75956,Yellow,Green,Commercial,100,0.79,0.71,,,e_1-f_1
+,30.22933,-97.75956,30.22829,-97.75712,Yellow,Green,Commercial,100,0.8,0.72,,,f_1-g_1
+,30.22829,-97.75712,30.229475,-97.753314,Yellow,Yellow,Commercial,100,0.84,0.74,,(Client Node),g_1-h_1
+,30.23998,-97.76592,30.23998,-97.76592,Green,Yellow,Commercial,100,0.68,0.75,,,6-6_1
+,30.23998,-97.76592,30.23845,-97.76297,Green,Yellow,Commercial,100,0.68,0.77,,,6_1-6_2
+,30.23845,-97.76297,30.23775,-97.76116,Green,Yellow,Commercial,100,0.68,0.78,,,6_2-6_3
+,30.23775,-97.76116,30.2368,-97.75916,Green,Yellow,Commercial,100,0.68,0.79,,,6_3-6_4
+,30.2368,-97.75916,30.23558,-97.75646,Green,Yellow,Commercial,100,0.68,0.8,,,6_4-6_5
+,30.23558,-97.75646,30.23775,-97.75465,Green,Yellow,Commercial,100,0.68,0.81,,,6_5-6_5_1
+,30.23775,-97.75465,30.238609,-97.755107,Green,Yellow,Commercial,100,0.68,0.82,,(HEB Node),6_5_1-6_5_2
