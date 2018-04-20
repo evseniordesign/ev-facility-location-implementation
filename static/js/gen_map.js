@@ -1,8 +1,17 @@
 var bounds = new google.maps.LatLngBounds();
-var polyline_before_state = true;
+var polylineBeforeState = true;
+var powerlineData = [];
 var map = new google.maps.Map(document.getElementById("map_canvas"), {
     zoom: 15,
 });
+
+function makeButton(text, listener) {
+    var button = document.createElement('button');
+    button.classList.add('map-option');
+    button.innerText = text;
+    map.controls[google.maps.ControlPosition.TOP_CENTER].push(button);
+    button.addEventListener('click', listener);
+}
 
 unassigned.forEach(client => {
     bounds.extend(new google.maps.LatLng(client.lat, client.lng));
@@ -22,16 +31,16 @@ unassigned.forEach(client => {
     });
 });
 
-points.forEach(point => {
-    bounds.extend(new google.maps.LatLng(point.lat, point.lng));
+facilities.forEach(facility => {
+    bounds.extend(new google.maps.LatLng(facility.lat, facility.lng));
 
-    var marker = new google.maps.Marker({
-        position: {lat: point.lat, lng: point.lng},
+    facility.marker = new google.maps.Marker({
+        position: {lat: facility.lat, lng: facility.lng},
         map,
         icon: fac_img_url,
     });
 
-    var client_markers = point.assigned_clients.map(client => {
+    var clientMarkers = facility.assignedClients.map(client => {
         bounds.extend(new google.maps.LatLng(client.lat, client.lng));
 
         return new google.maps.Marker({
@@ -42,28 +51,29 @@ points.forEach(point => {
         });
     });
 
-    if(point.assigned_clients.length === 1) {
+    if(facility.assignedClients.length === 1) {
         var content = '<p>1 client</p>';
     } else {
-        var content = `<p>${point.assigned_clients.length} clients</p>`;
+        var content = `<p>${facility.assignedClients.length} clients</p>`;
     }
 
     var infowindow = new google.maps.InfoWindow({content});
 
-    marker.addListener('click', () => {
-        infowindow.open(map, marker);
-        var new_visible = !client_markers[0].getVisible();
-        for(client of client_markers) {
+    facility.marker.addListener('click', () => {
+        if(clientMarkers.length === 0) return;
+        infowindow.open(map, facility.marker);
+        var new_visible = !clientMarkers[0].getVisible();
+        for(client of clientMarkers) {
             client.setVisible(new_visible);
         }
     });
 });
 
 for(line of powerlines) {
-    bounds.extend(new google.maps.LatLng(line.start.lat, line.start.lng));
-    bounds.extend(new google.maps.LatLng(line.end.lat, line.end.lng));
+    bounds.extend(line.start);
+    bounds.extend(line.end);
 
-    line.polyline = new google.maps.Polyline({
+    var polyline = new google.maps.Polyline({
         path: [line.start, line.end],
         strokeColor: line.beforeColor,
         strokeOpacity: 1.0,
@@ -71,30 +81,37 @@ for(line of powerlines) {
         visible: false,
         map,
     });
+
+    powerlineData.push(polyline);
+
+    if(line.type.toLowerCase() === 'substation') {
+        var marker = new google.maps.Marker({
+            position: line.start,
+            map,
+            visible: false,
+        });
+
+        powerlineData.push(marker);
+    }
 }
 
-var visible_button = document.createElement('button');
-visible_button.classList.add('map-option');
-visible_button.innerText = 'Toggle line visibility';
-map.controls[google.maps.ControlPosition.TOP_CENTER].push(visible_button);
-visible_button.addEventListener('click', () => {
-    if(powerlines.length == 0) return;
-    var new_visible = !powerlines[0].polyline.getVisible();
-    for(line of powerlines) {
-        line.polyline.setVisible(new_visible);
-    }
+makeButton('Toggle line visibility', () => {
+    powerlineData.forEach(icon => icon.setVisible(!icon.getVisible()));
 });
 
-var state_button = document.createElement('button');
-state_button.classList.add('map-option');
-state_button.innerText = 'Toggle grid improvements';
-map.controls[google.maps.ControlPosition.TOP_CENTER].push(state_button);
-state_button.addEventListener('click', () => {
+makeButton('Toggle grid improvements', () => {
     for(line of powerlines) {
-        var new_color = polyline_before_state ? line.afterColor : line.beforeColor;
-        line.polyline.setOptions({strokeColor: new_color});
+        var newColor = polylineBeforeState ? line.afterColor : line.beforeColor;
+        line.polyline.setOptions({strokeColor: newColor});
     }
-    polyline_before_state = !polyline_before_state;
+    polylineBeforeState = !polylineBeforeState;
+});
+
+makeButton('Toggle unused facility visibility', () => {
+    facilities.filter(facility => facility.assignedClients.length !== 0)
+              .forEach(facility => {
+                   facility.marker.setVisible(!facility.marker.getVisible());
+               });
 });
 
 map.fitBounds(bounds);

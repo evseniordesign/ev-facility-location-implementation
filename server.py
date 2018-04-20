@@ -38,7 +38,6 @@ def run_algorithm():
         return user_error('Filetype not allowed')
 
     unassigned_clients = []
-    facilities = []
     powerlines = []
 
     data = process_input(request.files)
@@ -66,16 +65,15 @@ def run_algorithm():
     # Create objects to output to map
     for facility in output.keys():
         if 'dummy' not in facility:
-            facility['assigned_clients'] = output[facility]
-            facilities.append(facility)
+            data['facilities'][facility['index']]['assigned_clients'] = list(output[facility])
         else:
             unassigned_clients = list(output[facility])
 
-    if not facilities:
+    if len(unassigned_clients) == len(data['clients']):
         return user_error('No facilities to open')
 
     return render_template('map.html',
-                           points=facilities,
+                           facilities=[fac for fac in data['facilities'] if 'dummy' not in fac],
                            unassigned=unassigned_clients,
                            powerlines=powerlines)
 
