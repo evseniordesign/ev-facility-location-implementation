@@ -9,6 +9,7 @@ import json
 
 BASE_MAP_REQ = 'https://maps.googleapis.com/maps/api/distancematrix/json?'
 M_TO_MI = 0.000621371
+KM_TO_M = 1000
 SEC_TO_MIN = 1 / 60.0
 DEG_TO_MI = 1 / 69.0
 CLI_PER_REQ = 4
@@ -101,6 +102,7 @@ def get_map_distance(data):
         for client in data['clients']:
             client['phys_dist'] = [distance(client['lat'], client['long'],
                                             facility['lat'], facility['long'])
+                                            * KM_TO_M * M_TO_MI
                                    for facility in data['facilities']]
 
             client['time_dist'] = [0 for _ in xrange(len(data['facilities']))]

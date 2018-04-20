@@ -67,13 +67,17 @@ for(line of powerlines) {
         path: [line.start, line.end],
         strokeColor: line.beforeColor,
         strokeOpacity: 1.0,
-        strokeWeight: 2,
+        strokeWeight: 5,
         visible: false,
         map,
     });
 }
 
-document.getElementById('visible_toggle').addEventListener('click', () => {
+var visible_button = document.createElement('button');
+visible_button.classList.add('map-option');
+visible_button.innerText = 'Toggle line visibility';
+map.controls[google.maps.ControlPosition.TOP_CENTER].push(visible_button);
+visible_button.addEventListener('click', () => {
     if(powerlines.length == 0) return;
     var new_visible = !powerlines[0].polyline.getVisible();
     for(line of powerlines) {
@@ -81,7 +85,11 @@ document.getElementById('visible_toggle').addEventListener('click', () => {
     }
 });
 
-document.getElementById('state_toggle').addEventListener('click', () => {
+var state_button = document.createElement('button');
+state_button.classList.add('map-option');
+state_button.innerText = 'Toggle grid improvements';
+map.controls[google.maps.ControlPosition.TOP_CENTER].push(state_button);
+state_button.addEventListener('click', () => {
     for(line of powerlines) {
         var new_color = polyline_before_state ? line.afterColor : line.beforeColor;
         line.polyline.setOptions({strokeColor: new_color});
