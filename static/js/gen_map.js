@@ -1,6 +1,6 @@
 var bounds = new google.maps.LatLngBounds();
 var polylineBeforeState = true;
-var powerlineData = [];
+var powerlineMarkers = [];
 var map = new google.maps.Map(document.getElementById("map_canvas"), {
     zoom: 15,
 });
@@ -38,6 +38,7 @@ facilities.forEach(facility => {
         position: {lat: facility.lat, lng: facility.lng},
         map,
         icon: fac_img_url,
+        visible: facility.assignedClients.length !== 0,
     });
 
     var clientMarkers = facility.assignedClients.map(client => {
@@ -51,7 +52,9 @@ facilities.forEach(facility => {
         });
     });
 
-    if(facility.assignedClients.length === 1) {
+    if(facility.assignedClients.length === 0) {
+        var content = 'Unused facility';
+    } else if(facility.assignedClients.length === 1) {
         var content = '<p>1 client</p>';
     } else {
         var content = `<p>${facility.assignedClients.length} clients</p>`;
@@ -60,8 +63,8 @@ facilities.forEach(facility => {
     var infowindow = new google.maps.InfoWindow({content});
 
     facility.marker.addListener('click', () => {
-        if(clientMarkers.length === 0) return;
         infowindow.open(map, facility.marker);
+        if(clientMarkers.length === 0) return;
         var new_visible = !clientMarkers[0].getVisible();
         for(client of clientMarkers) {
             client.setVisible(new_visible);
@@ -73,7 +76,7 @@ for(line of powerlines) {
     bounds.extend(line.start);
     bounds.extend(line.end);
 
-    var polyline = new google.maps.Polyline({
+    line.polyline = new google.maps.Polyline({
         path: [line.start, line.end],
         strokeColor: line.beforeColor,
         strokeOpacity: 1.0,
@@ -82,7 +85,7 @@ for(line of powerlines) {
         map,
     });
 
-    powerlineData.push(polyline);
+    powerlineMarkers.push(line.polyline);
 
     if(line.type.toLowerCase() === 'substation') {
         var marker = new google.maps.Marker({
@@ -91,12 +94,12 @@ for(line of powerlines) {
             visible: false,
         });
 
-        powerlineData.push(marker);
+        powerlineMarkers.push(marker);
     }
 }
 
 makeButton('Toggle line visibility', () => {
-    powerlineData.forEach(icon => icon.setVisible(!icon.getVisible()));
+    powerlineMarkers.forEach(icon => icon.setVisible(!icon.getVisible()));
 });
 
 makeButton('Toggle grid improvements', () => {
@@ -108,7 +111,7 @@ makeButton('Toggle grid improvements', () => {
 });
 
 makeButton('Toggle unused facility visibility', () => {
-    facilities.filter(facility => facility.assignedClients.length !== 0)
+    facilities.filter(facility => facility.assignedClients.length === 0)
               .forEach(facility => {
                    facility.marker.setVisible(!facility.marker.getVisible());
                });
