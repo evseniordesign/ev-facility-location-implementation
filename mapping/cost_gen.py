@@ -14,6 +14,8 @@ USER_COST = 15   # Opportunity cost for each user
 TIME_COST = 0.11
 PHYS_COST = 0.85
 
+USE_LOT_AREA = False
+
 def get_fcost(facility):
     """
     Facility cost function. Currently has a fixed cost
@@ -37,6 +39,10 @@ def get_ccost(client, facility):
     if phys_dist > SERVICE_RADIUS:
         phys_dist **= 2
 
+    if USE_LOT_AREA:
+        dist_cost = time_dist * TIME_COST + phys_dist * PHYS_COST
+        return dist_cost*math.sqrt(facility['lotarea'])
+        
     return time_dist * TIME_COST + phys_dist * PHYS_COST
 
 def opp_cost(client):
