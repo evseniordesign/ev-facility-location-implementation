@@ -57,37 +57,43 @@ def try_cache(data):
     Try to get distance data from cache.
     Returns true if all values could be obtained from cache.
     """
-    with open('cache.json', 'r') as cachefile:
-        cache = json.load(cachefile)
+    try:
+        cachefile = open('cache.json', 'r')
+    except IOError:
+        return False
 
-        for client in data['clients']:
-            client['time_dist'] = []
-            client['phys_dist'] = []
-            client_str = ' '.join((client['lat'], client['long']))
+    cache = json.load(cachefile)
 
-            for facility in data['facilities']:
-                if 'dummy' in facility:
-                    continue
+    for client in data['clients']:
+        client['time_dist'] = []
+        client['phys_dist'] = []
+        client_str = ' '.join((client['lat'], client['long']))
 
-                facility_str = ' '.join((facility['lat'], facility['long']))
+        for facility in data['facilities']:
+            if 'dummy' in facility:
+                continue
 
-                key1 = ' '.join((facility_str, client_str))
-                key2 = ' '.join((client_str, facility_str))
-                key = None
+            facility_str = ' '.join((facility['lat'], facility['long']))
 
-                if key1 in cache:
-                    key = key1
-                elif key2 in cache:
-                    key = key2
+            key1 = ' '.join((facility_str, client_str))
+            key2 = ' '.join((client_str, facility_str))
+            key = None
 
-                if key:
-                    time = cache[key]['time']
-                    dist = cache[key]['dist']
-                    client['time_dist'].append(float(time))
-                    client['phys_dist'].append(float(dist))
-                else:
-                    return False
+            if key1 in cache:
+                key = key1
+            elif key2 in cache:
+                key = key2
 
+            if key:
+                time = cache[key]['time']
+                dist = cache[key]['dist']
+                client['time_dist'].append(float(time))
+                client['phys_dist'].append(float(dist))
+            else:
+                cachefile.close()
+                return False
+
+    cachefile.close()
     return True
 
 
@@ -100,10 +106,10 @@ def get_map_distance(data):
     # Use line dist if not found in cache
     if not try_cache(data):
         for client in data['clients']:
-            client['phys_dist'] = [distance(client['lat'], client['long'],
-                                            facility['lat'], facility['long'])
-                                            * KM_TO_M * M_TO_MI
-                                   for facility in data['facilities']]
+            client['phys_dist'] = [distance(float(client['lat']), float(client['long']),
+                                            float(facility['lat']), float(facility['long']))
+                                   * KM_TO_M * M_TO_MI
+                                   for facility in data['facilities'] if 'dummy' not in facility]
 
             client['time_dist'] = [0 for _ in xrange(len(data['facilities']))]
 
