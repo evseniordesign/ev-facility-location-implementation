@@ -1,7 +1,20 @@
+"""
+Assign output colors to each power line based on load.
+Main function is color_powerlines, rest are helpers.
+"""
+from collections import defaultdict
+import Queue
+
 YELLOW_LIMIT = 0.85
 GREEN_LIMIT = 0.7
 
-import Queue
+CAPACITIES = defaultdict(
+    lambda: 10000, # default value
+    residential=5000,
+    commercial=40000,
+    substation=50000,
+)
+
 
 def is_adjacent(line1, line2):
     """
@@ -18,9 +31,9 @@ def num_to_color(num, capacity):
     Convert a number of EVs using a line and capacity of that line
     into a color to be displayed on the map.
     """
-    if capacity * YELLOW_LIMIT > num:
+    if capacity * YELLOW_LIMIT < num:
         return 'red'
-    elif capacity * GREEN_LIMIT > num:
+    elif capacity * GREEN_LIMIT < num:
         return 'yellow'
     else:
         return 'green'
@@ -50,8 +63,8 @@ def search_for_substation(start, adj_list, powerlines):
         curr = bfs_q.get()
 
         # Path found, backtrack and return path
-        if powerlines[curr]['type'] == 'substation':
-            path = [curr]
+        if powerlines[curr]['type'].lower().strip() == 'substation':
+            path = [powerlines[curr]]
             while curr in parents.keys():
                 curr = parents[curr]
                 path.append(powerlines[curr])
@@ -71,26 +84,19 @@ def color_powerlines(data, output):
     """
     Add colors for the powerlines before and after facility assignment.
     """
-    powerlines = data['powerlines']
-
-    # temporary hack
-    for line in powerlines:
-        if 'beforecolor' in line and line['beforecolor']:
-            line['beforecolor_tmp'] = line['beforecolor']
-        if 'aftercolor' in line and line['aftercolor']:
-            line['aftercolor_tmp'] = line['aftercolor']
-
-    for index, line in enumerate(powerlines):
+    for index, line in enumerate(data['powerlines']):
         # store number of evs using the line for now
         # will be replaced by colors later
-        line['index'] = index
         line['beforecolor'] = 0
         line['aftercolor'] = 0
+        line['index'] = index
+        line['capacity'] = CAPACITIES[line['type'].lower().strip()]
 
     # Adjacency list modeling powerline graph
     adj_list = [[line1['index']
-                 for line1 in powerlines if is_adjacent(line1, line2)]
-                for line2 in powerlines]
+                 for line1 in data['powerlines']
+                 if is_adjacent(line1, line2) and line1['index'] != line2['index']]
+                for line2 in data['powerlines']]
 
     # search for a substation
     # Anything along the path is "used" by this EV user
@@ -98,28 +104,24 @@ def color_powerlines(data, output):
 
     # before colors
     for client in data['clients']:
-        path = search_for_substation(client, adj_list, powerlines)
+        path = search_for_substation(client, adj_list, data['powerlines'])
         for line in path:
-            line['beforecolor'] += 1
+            line['beforecolor'] += float(client['population'])
 
     # after colors
     for facility in output.keys():
         if 'dummy' in facility:
             for client in output[facility]:
-                path = search_for_substation(facility, adj_list, powerlines)
+                path = search_for_substation(facility, adj_list, data['powerlines'])
                 for line in path:
-                    line['aftercolor'] += 1
+                    line['aftercolor'] += float(client['population'])
         else:
-            path = search_for_substation(facility, adj_list, powerlines)
+            path = search_for_substation(facility, adj_list, data['powerlines'])
             for line in path:
-                line['aftercolor'] += 1
+                line['aftercolor'] += sum(float(client['population'])
+                                          for client in output[facility])
 
     # convert numbers to colors
-    for line in powerlines:
-        # Continuation of temporary hack
-        if 'beforecolor_tmp' in line:
-            line['beforecolor'] = line['beforecolor_tmp']
-            line['aftercolor'] = line['aftercolor_tmp']
-        else:
-            line['aftercolor'] = num_to_color(line['aftercolor'], line['capacity'])
-            line['beforecolor'] = num_to_color(line['beforecolor'], line['capacity'])
+    for line in data['powerlines']:
+        line['aftercolor'] = num_to_color(line['aftercolor'], line['capacity'])
+        line['beforecolor'] = num_to_color(line['beforecolor'], line['capacity'])
