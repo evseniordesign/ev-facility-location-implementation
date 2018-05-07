@@ -128,11 +128,11 @@ def choose_facilities(facilities, clients, algorithm='randomized'):
 
     if algorithm == 'randomized':
         client_chooser = lambda client: client.lowest_pair_cost + client.get_expected_cost()
-        facility_chooser = get_cheapest_neighbor
-        return rounding_algorithm(facilities, clients, client_chooser, facility_chooser)
+        facility_chooser = get_probably_good_neighbor
     elif algorithm == 'deterministic':
         client_chooser = lambda client: client.lowest_pair_cost
-        facility_chooser = get_probably_good_neighbor
-        return rounding_algorithm(facilities, clients, client_chooser, facility_chooser)
+        facility_chooser = get_cheapest_neighbor
     else:
         return None
+
+    return rounding_algorithm(facilities, clients, client_chooser, facility_chooser)

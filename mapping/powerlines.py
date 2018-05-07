@@ -90,7 +90,11 @@ def color_powerlines(data, output):
         line['beforecolor'] = 0
         line['aftercolor'] = 0
         line['index'] = index
-        line['capacity'] = CAPACITIES[line['type'].lower().strip()]
+
+        try:
+            line['capacity'] = float(line['capacity'])
+        except (KeyError, ValueError):
+            line['capacity'] = CAPACITIES[line['type'].lower().strip()]
 
     # Adjacency list modeling powerline graph
     adj_list = [[line1['index']
