@@ -116,7 +116,7 @@ def color_powerlines(data, output):
     for facility in output.keys():
         if 'dummy' in facility:
             for client in output[facility]:
-                path = search_for_substation(facility, adj_list, data['powerlines'])
+                path = search_for_substation(client, adj_list, data['powerlines'])
                 for line in path:
                     line['aftercolor'] += float(client['population'])
         else:
