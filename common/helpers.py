@@ -6,6 +6,7 @@ from math import sin, cos, sqrt, atan2, radians
 from multiprocessing import Pool
 import requests
 import json
+import os
 
 BASE_MAP_REQ = 'https://maps.googleapis.com/maps/api/distancematrix/json?'
 M_TO_MI = 0.000621371
@@ -14,6 +15,7 @@ SEC_TO_MIN = 1 / 60.0
 DEG_TO_MI = 1 / 69.0
 CLI_PER_REQ = 4
 FAC_PER_REQ = 25
+BASE_FOLDER = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 def chunks(l, n):
     """Yield successive n-sized chunks from l."""
@@ -58,7 +60,7 @@ def try_cache(data):
     Returns true if all values could be obtained from cache.
     """
     try:
-        cachefile = open('cache.json', 'r')
+        cachefile = open(os.path.join(BASE_FOLDER, 'cache.json'), 'r')
     except IOError:
         return False
 
